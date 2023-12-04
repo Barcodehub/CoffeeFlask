@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html
+  lang="es"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="../assets/"
+  data-template="vertical-menu-template-free">
+<link rel="stylesheet" href="../../static/style.css">
+<link rel="stylesheet" href="../../static/assets/css/bootstrap.min.css">
+
+
+
+<div>
+
+{% include 'public/includes/portada.html' %}
+</div>
+
+
+
+
+{% block optional_content %}
+
+
+<div class="p-3 text-white px-3">
+    <h2 class="text-center">Novedades</h2>
+</div>
+
+{% include 'public/includes/carousel.html' %}
+
+{% include 'public/includes/tarjetas.html' %}
+{% endblock %}
+
+
+
+
+
+<head>
+    {% include 'public/includes/head.html' %}
+    <!---->
+    {% block customCSS %} {% endblock %}
+  </head>
+
+
+
+
+
+<body class="fondo">
+
+
+
+
+    {% include 'public/includes/pre_loader.html' %}
+    <!---->
+    {% include 'public/includes/navbar.html' %}
+    <div class="">
+      <div class="">
+
+        <div class="">
+          <div class="r">
+            <div class="container-xxl flex-grow-1 container-p-y">
+              {% include 'public/includes/messages.html' %}
+              <!---->
+              {% block body %}
+              <!--fin del bloque-->
+              {% endblock %}
+            </div>
+
+            <div class="content-backdrop fade"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+
+    {% include 'public/includes/js.html' %}
+    <!--Custom JS-->
+    {% block customJS %} {% endblock %}
+
+
+
+
+
+{% include 'public/includes/footer.html' %}
+
+
+
+
+<script src="../../static/assets/js/bootstrap.bundle.min.js.map"></script>
+<script src="../../static/assets/js/app.js"></script>
+
+  </body>
+</html>

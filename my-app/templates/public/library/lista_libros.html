@@ -1,0 +1,99 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de Libros{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">LISTA DE LIBROS</h3>
+      <hr />
+    </div>
+
+    <div class="row justify-content-end">
+      <div class="col-md-6 mt-4 py-2">
+        <input
+          type="search"
+          id="search"
+          class="form-control border-0 shadow-none"
+          placeholder="Buscar libro..."
+          onkeyup="buscadorTable2('tbl_libros')" />
+      </div>
+    </div>
+
+    <div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+        <table
+          table-hover
+          id="tbl_libros"
+          class="table table-striped table-bordered"
+          cellspacing="0"
+          width="100%">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Codigo</th>
+              <th>Nombre</th>
+              <th>Autor</th>
+              <th>Genero</th>
+              <th>Fecha</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for libro in libros %}
+            <tr id="libro_{{ libro.id_libro }}">
+              <td>{{ loop.index }}</td>
+              <td>{{ libro.codigo_libro }}</td>
+              <td>{{ libro.nombre_libro }}</td>
+              <td>{{ libro.autor_libro }}</td>
+              <td>{{ libro.genero_libro }}</td>
+              <td>{{ libro.fecha_libro }}</td>
+              <td width="10px">
+                {% if session['id_rol'] == 1 %}
+                <a
+                  href="#"
+                  onclick="eliminarLibro('{{ libro.id_libro }}');"
+                  class="btn btn-danger btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Eliminar libro {{ libro.nombre_libro }}</span>">
+                  <i class="bi bi-trash3"></i>
+                  Eliminar
+                </a>
+                <a
+                  href="{{ url_for('viewEditarLibro', id = libro.id_libro) }}"
+                  class="btn btn-success btn-sm"
+                  tooltip="Actualizar Registro">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Actualizar
+                </a>
+                {% endif %}
+                <a
+                  href="/detalles-libro/{{ libro.id_libro }}"
+                  title="Ver envio"
+                  type="button"
+                  class="btn btn-info btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Ver detalles</span>">
+                  <i class="bi bi-eye"></i>
+                  Ver detalles
+                </a>
+
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

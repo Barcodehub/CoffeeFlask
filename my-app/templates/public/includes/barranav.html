@@ -1,0 +1,99 @@
+
+
+<div class="border-top py-4">
+        <div class="navbar navbar-expand-sm container navbar-light ">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navegacion">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div id="navegacion" class="collapse navbar-collapse">
+                <nav class="navbar-nav container d-flex flex-md-row justify-content-md-between text-center">
+
+                     <div class="contenido-banner2 menu-item {% if request.path == '/mi-nosotros' %} active {% endif %}">
+                       <a href="/mi-nosotros" class="menu-link">
+                        <div data-i18n="Tables">Nosotros</div>
+                      </a>
+
+</div>
+
+{% if session['id_rol'] == 2 %}
+
+                   <div class="contenido-banner2 menu-item {% if request.path == '/mi-tienda' %} active {% endif %}">
+                       <a href="/mi-tienda" class="menu-link">
+                        <div data-i18n="Tables">Mi tienda</div>
+                      </a>
+</div>
+
+
+                   <div class="contenido-banner2 menu-item {% if request.path == '/mi-blog' %} active {% endif %}">
+                       <a href="/mi-blog" class="menu-link">
+                        <div data-i18n="Tables">Blog</div>
+                      </a>
+</div>
+{% endif %}
+
+{% if session['id_rol'] == 1 %}
+
+
+               <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-usuarios' %} active {% endif %}">
+
+                         <a href="/lista-de-usuarios" class="menu-link">
+                            <div data-i18n="Tables">Lista de Usuarios</div>
+                          </a>
+            </div>
+
+{% endif %}
+
+{% if session['id_rol'] == 2 %}
+               <div class="contenido-banner2 menu-item {% if request.path == '/mi-contacto' %} active {% endif %}">
+                       <a href="/mi-contacto" class="menu-link">
+                        <div data-i18n="Tables">Contacto</div>
+                      </a>
+                </div>
+
+{% endif %}
+
+
+               <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-productos' %} active {% endif %}">
+
+                         <a href="/lista-de-productos" class="menu-link">
+                             {% if session['id_rol'] == 1 %}
+                            <div data-i18n="Tables">Gestion de productos</div>
+                             {% endif %}
+                             {% if session['id_rol'] == 2 or session['id_rol'] == 3 %}
+                             <div data-i18n="Tables">Menu</div>
+                             {% endif %}
+                          </a>
+            </div>
+
+
+
+
+                <div
+              class="contenido-banner2 menu-item {% if request.path == '/mi-perfil' %} active {% endif %}">
+              <a href="/mi-perfil" class="menu-link">
+                <i class="menu-icon bi bi-person-fill-gear"></i>
+                <div data-i18n="Tables">Mi Perfil</div>
+              </a>
+</div>
+
+
+              <div class="contenido-banner2 menu-item">
+          <a href="{{ url_for('cerraSesion') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
+            <div data-i18n="Tables">Salir</div>
+          </a>
+</div>
+
+                </nav>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+

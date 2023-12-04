@@ -1,0 +1,121 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Tienda {% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+<header class="py-5 ">
+        <h1 class="text-center">
+            Tienda
+            <span class="text-primary"> Biblioteca</span>
+        </h1>
+    </header>
+
+
+
+
+
+<div class="container-xl py-5">
+        <h2 class="text-center my-5">Nuestros Productos</h2>
+
+        <div class="row g-0 pt-5 mb-4">
+            <div class="col-md-8 producto">
+
+                                         <div class="app-brand demo">
+                            <a href="{{ url_for('inicio') }}" class="app-brand-link">
+                              <span class="app-brand-logo demo">
+                                <img class="img-fluid"
+                                  src="{{ url_for('static', filename ='assets/img/img/producto1.jpg') }}"
+                                  alt="Logo" />
+                              </span>
+                            </a>
+
+                            <a
+                              href="javascript:void(0);"
+                              class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                              <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                            </a>
+                          </div>
+
+
+            </div>
+            <div class="col-md-4 bg-primary text-center p-5 text-white d-flex flex-column justify-content-center">
+                <h3>Producto 1</h3>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam deleniti sed recusandae vitae architecto molestiae, eos corrupti</p>
+                <p class="fs-1 fw-bold">$12,000.00</p>
+                <a class="btn btn-success fs-3 fw-bold text-uppercase py-3" href="#">Agregar al carrito</a>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+
+
+                                    <img class="img-fluid"
+                                      src="{{ url_for('static', filename ='assets/img/img/producto2.jpg') }}"
+                                      alt="Logo" />
+
+
+                                <a
+                                  href="javascript:void(0);"
+                                  class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                                  <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                                </a>
+
+                    <div class="card-body text-center bg-primary text-white p-5">
+                        <h3>Producto 2</h3>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam deleniti sed recusandae vitae architecto molestiae, eos corrupti</p>
+                        <p class="fs-1 fw-bold">$12,000.00</p>
+                        <a class="btn btn-success fs-3 fw-bold text-uppercase py-3 w-100" href="#">Agregar al carrito</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+
+                                        <img class="img-fluid"
+                                          src="{{ url_for('static', filename ='assets/img/img/producto3.jpg') }}"
+                                          alt="Logo" />
+
+
+                                    <a
+                                      href="javascript:void(0);"
+                                      class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                                      <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                                    </a>
+
+
+                    <div class="card-body text-center bg-primary text-white p-5">
+                        <h3>Producto 3</h3>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam deleniti sed recusandae vitae architecto molestiae, eos corrupti</p>
+                        <p class="fs-1 fw-bold">$12,000.00</p>
+                        <a class="btn btn-success fs-3 fw-bold text-uppercase py-3 w-100" href="#">Agregar al carrito</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+    {% endblock %}

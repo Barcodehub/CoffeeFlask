@@ -1,0 +1,125 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de productos{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">Menu</h3>
+      <hr />
+    </div>
+
+
+
+
+    <div class="row justify-content-end">
+
+      <div class="justify-content-center align-items-end text-end {% if request.path == '/registrar-producto' %} active {% endif %}">
+                        <a href="/registrar-producto" class=" btn btn-info btn-sm ">
+                            <div data-i18n="Tables">Registrar un producto</div>
+                          </a>
+      </div>
+
+
+
+      <div class="col-md-6 mt-4 py-2">
+        <input
+          type="search"
+          id="search"
+          class="form-control border-0 shadow-none"
+          placeholder="Buscar producto..."
+          onkeyup="buscadorTable('tbl_productos')" />
+      </div>
+    </div>
+
+    <div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+        <table
+          table-hover
+          id="tbl_productos"
+          class="table table-striped table-bordered"
+          cellspacing="0"
+          width="100%">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Nombre</th>
+              <th>Precio</th>
+              {% if session['id_rol'] == 1 %}
+              <th>Categoria</th>
+              <th>Acción</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos %}
+            <tr id="producto_{{ producto.id_producto }}">
+              <td>{{ loop.index }}</td>
+              <td>
+
+                 <div class="col-md-6">
+                <br />
+                <img
+                  style="width: 200px"
+                  src="/static/fotos_productos/{{ producto.foto_producto }}"
+                  alt="imagen-producto" />
+          </div>
+
+
+              </td>
+              <td>{{ producto.nombre_producto }}</td>
+              <td>{{ producto.precio_producto }}</td>
+              <td>{{ producto.categoria_producto }}</td>
+
+              <td width="10px">
+                {% if session['id_rol'] == 1 %}
+                <a
+                  href="/detalles-producto/{{ producto.id_producto }}"
+                  title="Ver envio"
+                  type="button"
+                  class="btn btn-info btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Ver detalles</span>">
+                  <i class="bi bi-eye"></i>
+                  Ver detalles
+                </a>
+                <a
+                  href="{{ url_for('viewEditarProducto', id = producto.id_producto) }}"
+                  class="btn btn-success btn-sm"
+                  tooltip="Actualizar Registro">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Actualizar
+                </a>
+                <a
+                  href="#"
+                  onclick="eliminarProducto('{{ producto.id_producto }}','{{ producto.foto_producto }}');"
+                  class="btn btn-danger btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Eliminar producto {{ producto.nombre_producto }}</span>">
+                  <i class="bi bi-trash3"></i>
+                  Eliminar
+                </a>
+                {% endif %}
+              </td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

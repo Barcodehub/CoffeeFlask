@@ -1,0 +1,29 @@
+<div class="container-xl banner">
+
+
+            <div id="indicadores" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button class="active" type="button" data-bs-target="#indicadores" data-bs-slide-to="0"></button>
+                    <button type="button" data-bs-target="#indicadores" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#indicadores" data-bs-slide-to="2"></button>
+                    <button type="button" data-bs-target="#indicadores" data-bs-slide-to="3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active banner">
+                        <img src="{{ url_for('static', filename ='assets/img/carousel/evento1.png') }}" alt="slide 1" class="d-block w-100">
+                    </div>
+                    <div class="carousel-item banner">
+                        <img src="{{ url_for('static', filename ='assets/img/carousel/biblio3.jpg') }}" alt="slide 1" class="d-block w-100">
+                    </div>
+
+
+                    <button type="button" class="carousel-control-prev" data-bs-target="#indicadores" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+
+                    <button type="button" class="carousel-control-next" data-bs-target="#indicadores" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+            </div>
+        </div>

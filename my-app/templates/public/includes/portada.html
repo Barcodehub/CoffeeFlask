@@ -1,0 +1,24 @@
+
+
+
+
+<div class="carousel-inner">
+<div class="carousel-item active banner">
+                  <img src="{{ url_for('static', filename ='assets/img/carousel/portada.jpg') }}" alt="slide 1" class="d-block w-100">
+  </div>
+
+{% include 'public/includes/barranav.html' %}
+
+
+    <div class="contenido-banner {% if request.path == '/inicio' %} active {% endif %}">
+                       <a href="/inicio">
+                        <div class="blanco">Bienvenidos a nuestro </div>
+                         <div>System Coffee</div>
+                      </a>
+</div>
+
+
+
+</div>
+
+

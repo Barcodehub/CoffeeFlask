@@ -1,0 +1,78 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Blog {% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+    <section class="container-xl py-5">
+        <h2 class="text-center my-5">Blog</h2>
+
+        <div class="row mt-5 gx-5">
+            <main class="col-md-8 order-1 order-md-0">
+                <article class="mb-2 pb-5">
+                    <h2 class="my-5">Guía de Colores</h2>
+                    <img class="img-fluid" src="../../../static/assets/img/img/nosotros.jpg" alt="imagen blog">
+
+                    <div class="d-flex flex-column flex-md-row justify-content-md-between py-4">
+                        <p class="fw-bold">Fecha: 
+                            <span class="text-primary">22 de octubre de 2022</span> 
+                        </p>
+                        <p class="fw-bold">Escrito por: 
+                            <span class="text-primary">TiendaMuebles</span> 
+                        </p>
+                    </div>
+
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam molestias dolores dolor sit repellendus voluptatum deserunt necessitatibus modi, ipsa laudantium error maxime assumenda recusandae possimus labore repellat cum obcaecati dicta?</p>
+
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore similique sequi dicta, voluptates odio tenetur adipisci reiciendis nemo esse fuga sint expedita laudantium aspernatur, quae hic repellendus perferendis inventore repudiandae?</p>
+
+                    <a href="entrada.html" class="btn btn-success px-5 py-3 fs-3 text-uppercase fw-bold rounded-0 d-block d-md-inline-block">Continuar Leyendo</a>
+                    
+                </article>
+
+                <article class="mb-2 pb-5 border-top">
+                    <h2 class="my-5">Guía de Colores</h2>
+                    <img class="img-fluid" src="../../../static/assets/img/img/nosotros.jpg" alt="imagen blog">
+
+                    <div class="d-flex flex-column flex-md-row justify-content-md-between py-4">
+                        <p class="fw-bold">Fecha: 
+                            <span class="text-primary">22 de octubre de 2022</span> 
+                        </p>
+                        <p class="fw-bold">Escrito por: 
+                            <span class="text-primary">TiendaMuebles</span> 
+                        </p>
+                    </div>
+
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam molestias dolores dolor sit repellendus voluptatum deserunt necessitatibus modi, ipsa laudantium error maxime assumenda recusandae possimus labore repellat cum obcaecati dicta?</p>
+
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore similique sequi dicta, voluptates odio tenetur adipisci reiciendis nemo esse fuga sint expedita laudantium aspernatur, quae hic repellendus perferendis inventore repudiandae?</p>
+
+                    <a href="entrada.html" class="btn btn-success px-5 py-3 fs-3 text-uppercase fw-bold rounded-0 d-block d-md-inline-block">Continuar Leyendo</a>
+                    
+                </article>
+            </main>
+            <aside class="col-md-4">
+                <h3 class="my-5">Otras Entradas del Blog</h3>
+
+                <ul class="mt-5 ">
+                    <li>
+                        <a class="text-dark text-decoration-none" href="#">Guía de Colores</a>
+                    </li>
+                    <li>
+                        <a class="text-dark text-decoration-none" href="#">Nuevos Modelos</a>
+                    </li>
+                    <li>
+                        <a class="text-dark text-decoration-none" href="#">Guía para diseños de interiores</a>
+                    </li>
+                    <li>
+                        <a class="text-dark text-decoration-none" href="#">Guía para diseños de exteriores</a>
+                    </li>
+                </ul>
+            </aside>
+        </div>
+    </section>
+
+
+
+
+ {% endblock %}

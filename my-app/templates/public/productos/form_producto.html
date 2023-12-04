@@ -1,0 +1,127 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Registrar Empleado{% endblock %}
+<!---->
+{% block customCSS %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename ='assets/css/file.css') }}" />
+{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">REGISTRAR NUEVO PRODUCTO</h3>
+      <hr />
+    </div>
+  </div>
+{% if session['id_rol'] == 1 %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="/form-registrar-producto"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="nombre_producto" class="form-label">
+                Nombre del producto
+              </label>
+              <input
+                type="text"
+                name="nombre_producto"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="precio_producto" class="form-label">
+                Precio del producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="precio_producto"
+                required />
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-md-6">
+              <label for="categoria_producto" class="form-label">
+                categoria del producto
+              </label>
+              <select
+                class="form-select"
+                name="categoria_producto"
+                aria-label="Default select example">
+                <option selected>Seleccione</option>
+                <option value="1">Bebida</option>
+                <option value="2">Desayuno</option>
+                <option value="3">Almuerzo</option>
+                <option value="4">Cena</option>
+                <option value="5">Aperitivos</option>
+                <option value="6">Dulces</option>
+                <option value="7">Congelados</option>
+                <option value="8">Cafe</option>
+              </select>
+            </div>
+
+
+
+            <div class="col-md-6">
+              <label for="" class="form-label">
+                CARGAR IMAGEN DEL PRODUCTO
+              </label>
+              <div class="avatar-upload">
+                <div class="avatar-edit">
+                  <input
+                    type="file"
+                    name="foto_producto"
+                    id="imageUpload"
+                    accept=".png, .jpg, .jpeg" />
+                  <label for="imageUpload"><i class="bi bi-pen"></i></label>
+                </div>
+                <div class="avatar-preview">
+                  <div class="avatar-preview">
+                    {% set url_avatar= url_for('static', filename
+                    ='assets/img/avatar.png') %}
+                    <div
+                      id="imagePreview"
+                      style="background-image: url('{{ url_avatar }}')"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+          </div>
+
+
+
+
+
+
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar registro ahora
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %} {% block customJS %}
+<script src="{{ url_for('static', filename ='assets/customJS/file.js') }}"></script>
+{% endblock %}

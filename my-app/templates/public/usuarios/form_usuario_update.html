@@ -1,0 +1,99 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Registrar Nuevo Usuario{% endblock %}
+<!---->
+{% block customCSS %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename ='assets/css/file.css') }}" />
+{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+  {% if respuestaUsuario|length %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">
+        <a href="/lista-de-usuarios">
+          <i class="bi bi-arrow-left-circle"></i>
+        </a>
+        ACTUALIZAR DATOS DEL Usuarios
+      </h3>
+      <hr />
+    </div>
+  </div>
+{% if session['id_rol'] == 1 %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="{{ url_for('actualizarUsuario', id = respuestaUsuario.id ) }}"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <input
+          type="text"
+          class="form-control"
+          name="id"
+          value="{{ respuestaUsuario.id }}"
+          required
+          hidden />
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="name_surname" class="form-label">
+                Nombre
+              </label>
+              <input
+                type="text"
+                name="name_surname"
+                value="{{ respuestaUsuario.name_surname }}"
+                class="form-control"
+                required />
+            </div>
+
+          <div class="col-md-6">
+              <label for="id_rol" class="form-label">
+                Rol del Usuario
+              </label>
+              {% with tipo_sexo = {"1": "Admin", "2": "User", 3:"Mesero"} %}
+              <select class="form-select" name="id_rol">
+                {% for clave, valor in tipo_sexo.items() %} {% if clave ==
+                respuestaUsuario.id_rol|string %}
+                <option value="{{ clave }}" selected>{{ valor }}</option>
+                {% else %}
+                <option value="{{ clave }}">{{ valor }}</option>
+                {% endif %} {% endfor %}
+              </select>
+              {% endwith %}
+            </div>
+
+
+          </div>
+
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar registro ahora
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center">No existe el usuario</h3>
+    </div>
+  </div>
+{% endif %}
+  {% endif %}
+</div>
+{% endblock %} {% block customJS %}
+<script src="{{ url_for('static', filename ='assets/customJS/file.js') }}"></script>
+{% endblock %}

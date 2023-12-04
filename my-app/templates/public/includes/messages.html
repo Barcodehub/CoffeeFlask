@@ -1,0 +1,20 @@
+<div>
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %}
+  <!--Recorriendo los mensages, mas la categoria a la cual pertenecen-->
+  {% for category, message in messages %}
+  <!--si existe mensages con category =='success'-->
+  {% if category =='success' %}
+  <!-- mensage success-->
+  <div class="alert alert-success text-center alert-dismissible" role="alert">
+    <strong>Felicitaciones</strong>, {{ message }} 😁
+  </div>
+
+  {% elif category == 'error' %}
+  <!--mensage error-->
+  <div class="alert alert-danger alert-dismissible text-center" role="alert">
+    Error, {{ message }} 😲
+  </div>
+
+  {% endif %} {% endfor %} {% endif %} {% endwith %}
+</div>
