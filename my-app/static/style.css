@@ -329,4 +329,19 @@ body {
         text-decoration: none;
     }
 
+    .marron{
+        color: #2a2205;
+    }
+    .marronclaro{
+        color: #493d1a;
+    }
+    .negrilla{
+        font-weight: bold;
+    }
+    .card{
+       background-color: #eff9e1
 
+    }
+     .fondomarronclaro{
+        background-color: #e3dabe;
+    }

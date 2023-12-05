@@ -69,24 +69,21 @@
 
           <div class="row mt-2">
             <div class="col-md-6">
-              <label for="categoria_producto" class="form-label">
-                categoria del producto
-              </label>
-              <select
-                class="form-select"
-                name="categoria_producto"
-                aria-label="Default select example">
-                <option selected>Seleccione</option>
-                <option value="1">Bebida</option>
-                <option value="2">Desayuno</option>
-                <option value="3">Almuerzo</option>
-                <option value="4">Cena</option>
-                <option value="5">Aperitivos</option>
-                <option value="6">Dulces</option>
-                <option value="7">Congelados</option>
-                <option value="8">Cafe</option>
-              </select>
-            </div>
+    <label for="categoria_producto" class="form-label">
+        Categoría del Producto
+    </label>
+    <select class="form-control" name="categoria_producto" required>
+        <option value="1" {% if respuestaProducto.categoria_producto == 1 %}selected{% endif %}>Bebida</option>
+        <option value="2" {% if respuestaProducto.categoria_producto == 2 %}selected{% endif %}>Desayuno</option>
+        <option value="3" {% if respuestaProducto.categoria_producto == 3 %}selected{% endif %}>Almuerzo</option>
+        <option value="4" {% if respuestaProducto.categoria_producto == 4 %}selected{% endif %}>Cena</option>
+        <option value="5" {% if respuestaProducto.categoria_producto == 5 %}selected{% endif %}>Aperitivos</option>
+        <option value="6" {% if respuestaProducto.categoria_producto == 6 %}selected{% endif %}>Dulces</option>
+        <option value="7" {% if respuestaProducto.categoria_producto == 7 %}selected{% endif %}>Congelados</option>
+        <option value="8" {% if respuestaProducto.categoria_producto == 8 %}selected{% endif %}>Café</option>
+    </select>
+</div>
+
 
 
 

@@ -1,0 +1,38 @@
+{% for producto in dataBusqueda %}
+
+<tr id="producto_{{ producto.id_producto }}">
+  <td>{{ loop.index }}</td>
+  <td>
+       <img
+       style="width: 200px"
+       src="/static/fotos_productos/{{ producto.foto_producto }}"
+       lt="imagen-producto" />
+</td>
+  <td>{{ producto.nombre_producto }}</td>
+  <td>{{ producto.precio_producto }}</td>
+  <td>{{ producto.categoria_producto }}</td>
+  <td>
+    {% if session['id_rol'] == 1 %}
+    <a
+      href="{{ url_for('viewEditarProducto', id = producto.id_producto) }}"
+      class="btn btn-success btn-sm"
+      tooltip="Actualizar Registro">
+      <i class="bi bi-arrow-clockwise"></i>
+      Actualizar
+    </a>
+    <a
+      href="#"
+      onclick="eliminarProducto('{{ producto.id_producto }}');"
+      class="btn btn-danger btn-sm"
+      data-bs-toggle="tooltip"
+      data-bs-offset="0,4"
+      data-bs-placement="top"
+      data-bs-html="true"
+      title="<span>Eliminar producto {{ producto.nombre_producto }}</span>">
+      <i class="bi bi-trash3"></i>
+      Eliminar
+    </a>
+  </td>
+</tr>
+{% endif %}
+{% endfor %}

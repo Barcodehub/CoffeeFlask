@@ -1,0 +1,36 @@
+{% for usuario in dataBusqueda %}
+
+<tr id="usuario_{{ usuario.id }}">
+  <td>{{ loop.index }}</td>
+  <td>{{ usuario.name_surname}}</td>
+  <td>{{ usuario.email_user}}</td>
+  <td>
+                {% if usuario.id_rol == 1 %}
+                Admin
+            {% elif usuario.id_rol == 3 %}
+                Mesero
+            {% else %}
+                User
+            {% endif %}
+            </td>
+  <td>{{ usuario.created_user}}</td>
+  <td>
+    {% if session['id_rol'] == 1 %}
+
+    <a
+      href="{{ url_for('viewEditarUsuario', id = usuario.id) }}"
+                  class="btn btn-success btn-sm"
+                  tooltip="Actualizar Registro">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Actualizar
+    </a>
+    <a
+      class="btn rounded-pill btn-danger"
+                onclick="eliminarUsuario('{{ usuario.id }}');">
+                <i class="bi bi-trash3"></i>
+                Eliminar
+    </a>
+  </td>
+</tr>
+{% endif %}
+{% endfor %}

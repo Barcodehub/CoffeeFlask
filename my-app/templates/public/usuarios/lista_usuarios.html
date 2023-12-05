@@ -4,6 +4,9 @@
 <!---->
 {% block body %} {% if (resp_usuariosBD) %}
 
+
+
+
 <div class="card content_consignaciones" style="border-radius: 0px !important">
   <section id="respuestaFiltroMes">
     <h2 class="text-center mt-5 mb-5">
@@ -11,6 +14,14 @@
       <hr />
     </h2>
     <div class="table-responsive text-nowrap">
+      <div class="col-md-6 mt-4 py-2">
+        <input
+          type="search"
+          id="search"
+          class="form-control border-0 shadow-none"
+          placeholder="Buscar usuario..."
+          onkeyup="buscadorTableUser('tbl_users')" />
+      </div>
       <table class="table table-hover">
         <thead>
           <tr style="background-color: #ddd">

@@ -30,7 +30,7 @@
           id="search"
           class="form-control border-0 shadow-none"
           placeholder="Buscar producto..."
-          onkeyup="buscadorTable('tbl_productos')" />
+          onkeyup="buscadorTableProducto('tbl_productos')" />
       </div>
     </div>
 
@@ -44,39 +44,58 @@
           width="100%">
 
           <thead>
-            <tr>
+            <tr class="fondomarronclaro ">
+                {% if session['id_rol'] == 1 %}
               <th>#</th>
               <th>Producto</th>
               <th>Nombre</th>
               <th>Precio</th>
-              {% if session['id_rol'] == 1 %}
               <th>Categoria</th>
               <th>Acción</th>
               {% endif %}
+
+             {% if session['id_rol'] == 2 %}
+                <th>#</th>
+              <th>Nuestros Productos</th>
+              <th>Precio</th>
+              <th>Acción</th>
+             {% endif %}
+
+
             </tr>
           </thead>
           <tbody>
             {% for producto in productos %}
             <tr id="producto_{{ producto.id_producto }}">
-              <td>{{ loop.index }}</td>
-              <td>
+              <td style="width: 50px">{{ loop.index }}</td>
+              <td style="width: 100px">
 
-                 <div class="col-md-6">
-                <br />
-                <img
-                  style="width: 200px"
+                <div class="align-middle text-center">
+
+                     <div class="align-middle text-center">
+                     <p class="text-dark negrilla">{{ producto.nombre_producto }}</p>
+                         </div>
+
+                 <div class="">
+                <img class="img-fluid"
+                  style="width: 300px"
                   src="/static/fotos_productos/{{ producto.foto_producto }}"
                   alt="imagen-producto" />
-          </div>
+                </div>
 
-
+                </div>
               </td>
+
+
+                {% if session['id_rol'] == 1 %}
               <td>{{ producto.nombre_producto }}</td>
-              <td>{{ producto.precio_producto }}</td>
+                {% endif %}
+              <td style="width: 100px" class="align-middle text-center">{{ producto.precio_producto }}</td>
+                {% if session['id_rol'] == 1 %}
               <td>{{ producto.categoria_producto }}</td>
 
+
               <td width="10px">
-                {% if session['id_rol'] == 1 %}
 
                 <a
                   href="{{ url_for('viewEditarProducto', id = producto.id_producto) }}"
@@ -98,6 +117,15 @@
                   Eliminar
                 </a>
                 {% endif %}
+
+                {% if session['id_rol'] == 2 %}
+                  <td style="width: 10px" class="align-middle text-center">
+                      <a href="" class="btn btn-success btn-sm" >
+                        Agregar al Carrito
+                      </a>
+                {% endif %}
+
+
               </td>
             </tr>
 
