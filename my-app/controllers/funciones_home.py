@@ -56,7 +56,14 @@ def sql_lista_productosBD():
                         e.foto_producto,
                         CASE
                             WHEN e.categoria_producto = 1 THEN 'Bebida'
-                            ELSE 'Desayuno'
+                            WHEN e.categoria_producto = 2 THEN 'Desayuno'
+                            WHEN e.categoria_producto = 3 THEN 'Almuerzo'
+                            WHEN e.categoria_producto = 4 THEN 'Cena'
+                            WHEN e.categoria_producto = 5 THEN 'Aperitivos'
+                            WHEN e.categoria_producto = 6 THEN 'Dulces'
+                            WHEN e.categoria_producto = 7 THEN 'Congelados'
+                            WHEN e.categoria_producto = 8 THEN 'Cafe'
+                            ELSE 'Otro'
                         END AS categoria_producto
                     FROM tbl_productos AS e
                     ORDER BY e.id_producto DESC
@@ -80,7 +87,8 @@ def buscarProductoUnico(id):
                             e.id_producto,
                             e.nombre_producto, 
                             e.precio_producto,
-                            e.foto_producto,
+                            e.categoria_producto,
+                            e.foto_producto
                         FROM tbl_productos AS e
                         WHERE e.id_producto =%s LIMIT 1
                     """)
@@ -99,6 +107,7 @@ def procesar_actualizacion_formProducto(data):
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 nombre_producto = data.form['nombre_producto']
                 precio_producto = data.form['precio_producto']
+                categoria_producto = data.form['categoria_producto']
                 foto_producto = data.form['foto_producto']
                 id_producto = data.form['id_producto']
 
@@ -111,19 +120,21 @@ def procesar_actualizacion_formProducto(data):
                         SET 
                             nombre_producto = %s,
                             precio_producto = %s,
+                            categoria_producto = %s,
                             foto_producto = %s
                         WHERE id_producto = %s
                     """
-                    values = (nombre_producto, precio_producto, foto_producto, fotoForm, id_producto)
+                    values = (nombre_producto, precio_producto, categoria_producto, fotoForm, id_producto)
                 else:
                     querySQL = """
                         UPDATE tbl_productos
                         SET 
                             nombre_producto = %s,
-                            precio_producto = %s
+                            precio_producto = %s,
+                            categoria_producto = %s
                         WHERE id_producto = %s
                     """
-                    values = (nombre_producto, precio_producto, foto_producto, id_producto)
+                    values = (nombre_producto, precio_producto, categoria_producto, id_producto)
 
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
@@ -135,6 +146,29 @@ def procesar_actualizacion_formProducto(data):
 
 
 
+
+def eliminarProducto(id_producto, foto_producto):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "DELETE FROM tbl_productos WHERE id_producto=%s"
+                cursor.execute(querySQL, (id_producto,))
+                conexion_MySQLdb.commit()
+                resultado_eliminar = cursor.rowcount
+
+                if resultado_eliminar:
+                    # Eliminadon foto_empleado desde el directorio
+                    basepath = path.dirname(__file__)
+                    url_File = path.join(
+                        basepath, '../static/fotos_productos', foto_producto)
+
+                    if path.exists(url_File):
+                        remove(url_File)  # Borrar foto desde la carpeta
+
+        return resultado_eliminar
+    except Exception as e:
+        print(f"Error en eliminarProducto : {e}")
+        return []
 
 
 
@@ -608,6 +642,193 @@ def eliminarUsuario(id):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#MESAS
+
+
+def procesar_form_mesa(dataForm):
+
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+
+                sql = "INSERT INTO tbl_mesas (nombre_mesa, cantidad_mesa, id_mesero) VALUES (%s, %s, %s)"
+
+
+
+                valores = (dataForm['nombre_mesa'], dataForm['cantidad_mesa'],
+                           dataForm['id_mesero'])
+                cursor.execute(sql, valores)
+
+                conexion_MySQLdb.commit()
+                resultado_insert = cursor.rowcount
+                return resultado_insert
+
+    except Exception as e:
+        return f'Se produjo un error en procesar_form_mesa: {str(e)}'
+
+
+def obtener_meseros():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = (f"""
+                    SELECT id, name_surname
+                    FROM users
+                    WHERE id_rol = 3
+                    """)
+                cursor.execute(querySQL,)
+                meseros = cursor.fetchall()
+        return meseros
+    except Exception as e:
+        print(f"Error en la función obtener_meseros: {e}")
+        return None
+
+
+# Lista de mesas
+def sql_lista_mesasBD():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = (f"""
+                    SELECT 
+                        e.id_mesa,
+                        e.nombre_mesa, 
+                        e.cantidad_mesa,
+                        u.name_surname AS nombre_mesero,
+                        CASE
+                            WHEN e.disponible_mesa = 1 THEN 'Disponible'
+                            ELSE 'No disponible'
+                        END AS disponible_mesa
+                    FROM tbl_mesas AS e
+                    JOIN users AS u ON e.id_mesero = u.id
+                    WHERE u.id_rol = 3
+                    ORDER BY e.id_mesa DESC
+                    """)
+                cursor.execute(querySQL,)
+                mesasBD = cursor.fetchall()
+        return mesasBD
+    except Exception as e:
+        print(
+            f"Error en la función sql_lista_mesasBD: {e}")
+        return None
+
+
+
+
+def buscarMesaBD(search):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
+                querySQL = ("""
+                        SELECT 
+                        e.id_mesa,
+                        e.nombre_mesa, 
+                        e.cantidad_mesa,
+                        CASE
+                            WHEN e.disponible_mesa = 1 THEN 'Disponible'
+                            ELSE 'No disponible'
+                        END AS disponible_mesa
+                        FROM tbl_mesas AS e
+                        WHERE e.nombre_mesa LIKE %s 
+                        ORDER BY e.id_mesa DESC
+                    """)
+                search_pattern = f"%{search}%"  # Agregar "%" alrededor del término de búsqueda
+                mycursor.execute(querySQL, (search_pattern,))
+                resultado_busqueda = mycursor.fetchall()
+                return resultado_busqueda
+
+    except Exception as e:
+        print(f"Ocurrió un error en def buscarMesaBD: {e}")
+        return []
+
+
+def buscarMesaUnico(id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
+                querySQL = ("""
+                        SELECT 
+                        e.id_mesa,
+                        e.nombre_mesa, 
+                        e.cantidad_mesa,
+                        e.disponible_mesa,
+                        e.id_mesero
+                        FROM tbl_mesas AS e
+                        WHERE e.id_mesa =%s LIMIT 1
+                    """)
+                mycursor.execute(querySQL, (id,))
+                mesa = mycursor.fetchone()
+                return mesa
+
+    except Exception as e:
+        print(f"Ocurrió un error en def buscarMesaUnico: {e}")
+        return []
+
+
+def procesar_actualizacion_formMesa(data):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                nombre_mesa = data.form['nombre_mesa']
+                cantidad_mesa = data.form['cantidad_mesa']
+                disponible_mesa = data.form['disponible_mesa']
+                id_mesero = data.form['id_mesero']
+                id_mesa = data.form['id_mesa']
+
+                querySQL = """
+                    UPDATE tbl_mesas
+                    SET 
+                        nombre_mesa = %s,
+                        cantidad_mesa = %s,
+                        disponible_mesa = %s,
+                        id_mesero = %scd sys    
+                    WHERE id_mesa = %s
+                """
+                values = (nombre_mesa, cantidad_mesa, disponible_mesa, id_mesero,
+                          id_mesa)
+
+                cursor.execute(querySQL, values)
+                conexion_MySQLdb.commit()
+
+        return cursor.rowcount or []
+    except Exception as e:
+        print(f"Ocurrió un error en procesar_actualizacion_formlibMesa: {e}")
+        return None
+
+
+
+def eliminarMesa(id_mesa):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "DELETE FROM tbl_mesas WHERE id_mesa=%s"
+                cursor.execute(querySQL, (id_mesa,))
+                conexion_MySQLdb.commit()
+                resultado_eliminar = cursor.rowcount
+
+
+
+        return resultado_eliminar
+    except Exception as e:
+        print(f"Error en eliminarMesa : {e}")
+        return []
 
 
 

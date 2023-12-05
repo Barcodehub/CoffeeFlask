@@ -33,3 +33,21 @@ function eliminarLibro(id_libro) {
     }
   }
 }
+
+function eliminarProducto(id_producto, foto_producto) {
+  if (confirm("¿Estas seguro que deseas Eliminar el producto?")) {
+    let url = `/borrar-producto/${id_producto}/${foto_producto}`;
+    if (url) {
+      window.location.href = url;
+    }
+  }
+}
+
+function eliminarMesa(id_mesa) {
+  if (confirm("¿Estas seguro que deseas Eliminar la mesa?")) {
+    let url = `/borrar-mesa/${id_mesa}`;
+    if (url) {
+      window.location.href = url;
+    }
+  }
+}

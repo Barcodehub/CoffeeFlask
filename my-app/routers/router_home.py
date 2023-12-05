@@ -10,7 +10,7 @@ PATH_URL = "public/empleados"
 PATH_URL2 = "public/library"
 PATH_URL3 = "public/usuarios"
 PATH_URL4 = "public/productos"
-
+PATH_URL5 = "public/mesas"
 
 
 @app.route('/registrar-producto', methods=['GET'])
@@ -52,7 +52,7 @@ def lista_productos():
 def viewBuscarProductoBD():
     resultadoBusqueda = buscarProductoBD(request.json['busqueda'])
     if resultadoBusqueda:
-        return render_template(f'{PATH_URL}/resultado_busqueda_producto.html', dataBusqueda=resultadoBusqueda)
+        return render_template(f'{PATH_URL4}/resultado_busqueda_producto.html', dataBusqueda=resultadoBusqueda)
     else:
         return jsonify({'fin': 0})
 
@@ -62,7 +62,7 @@ def viewEditarProducto(id):
     if 'conectado' in session:
         respuestaProducto = buscarProductoUnico(id)
         if respuestaProducto:
-            return render_template(f'{PATH_URL}/form_producto_update.html', respuestaEmpleado=respuestaEmpleado)
+            return render_template(f'{PATH_URL4}/form_producto_update.html', respuestaProducto=respuestaProducto)
         else:
             flash('El producto no existe.', 'error')
             return redirect(url_for('inicio'))
@@ -72,14 +72,19 @@ def viewEditarProducto(id):
 
 
 # Recibir formulario para actulizar informacion de producto
-@app.route('/actualizar-empleado', methods=['POST'])
+@app.route('/actualizar-producto', methods=['POST'])
 def actualizarProducto():
-    resultData = procesar_actualizacion_form(request)
+    resultData = procesar_actualizacion_formProducto(request)
     if resultData:
         return redirect(url_for('lista_productos'))
 
 
-
+@app.route('/borrar-producto/<string:id_producto>/<string:foto_producto>', methods=['GET'])
+def borrarProducto(id_producto, foto_producto):
+    resp = eliminarProducto(id_producto, foto_producto)
+    if resp:
+        flash('El Producto fue eliminado correctamente', 'success')
+        return redirect(url_for('lista_productos'))
 
 
 
@@ -233,6 +238,103 @@ def reporteBD():
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
+
+
+
+
+
+
+
+
+
+
+
+#MESAS
+
+@app.route('/registrar-mesa', methods=['GET'])
+def viewFormMesa():
+    if 'conectado' in session:
+        meseros = obtener_meseros()
+        return render_template(f'{PATH_URL5}/form_mesa.html', meseros=meseros)
+    else:
+        flash('primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
+
+
+
+
+@app.route('/form-registrar-mesa', methods=['POST'])
+def formMesa():
+            resultado = procesar_form_mesa(request.form)
+            if resultado:
+                return redirect(url_for('lista_mesas'))
+            else:
+                flash('El mesa NO fue registrado.', 'error')
+                return render_template(f'{PATH_URL5}/form_mesa.html')
+
+
+@app.route('/lista-de-mesas', methods=['GET'])
+def lista_mesas():
+    if 'conectado' in session:
+        return render_template(f'{PATH_URL5}/lista_mesas.html', mesas=sql_lista_mesasBD())
+    else:
+        flash('primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
+
+
+@app.route("/buscando-mesa", methods=['POST'])
+def viewBuscarMesaBD():
+
+    resultadoBusqueda = buscarMesaBD(request.json['busqueda'])
+    if resultadoBusqueda:
+        return render_template(f'{PATH_URL5}/resultado_busqueda_mesa.html', dataBusqueda=resultadoBusqueda)
+    else:
+        return jsonify({'fin': 0})
+
+
+@app.route("/editar-mesa/<int:id>", methods=['GET'])
+def viewEditarMesa(id):
+    if 'conectado' in session:
+        meseros = obtener_meseros()
+        respuestaMesa = buscarMesaUnico(id)
+        if respuestaMesa:
+            return render_template(f'{PATH_URL5}/form_mesa_update.html', respuestaMesa=respuestaMesa, meseros=meseros)
+        else:
+            flash('La mesa no existe.', 'error')
+            return redirect(url_for('inicio'))
+    else:
+        flash('Primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
+
+
+# Recibir formulario para actulizar informacion de mesa
+@app.route('/actualizar-mesa', methods=['POST'])
+def actualizarMesa():
+    print("pasoooooooooooo")
+    resultData = procesar_actualizacion_formMesa(request)
+    if resultData:
+        return redirect(url_for('lista_mesas'))
+
+@app.route('/borrar-mesa/<string:id_mesa>', methods=['GET'])
+def borrarMesao(id_mesa):
+    resp = eliminarMesa(id_mesa)
+    if resp:
+        flash('El mesa fue eliminado correctamente', 'success')
+        return redirect(url_for('lista_mesas'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
