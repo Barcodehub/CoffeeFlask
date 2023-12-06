@@ -426,6 +426,7 @@ def sql_lista_mesasBD():
                         e.id_mesa,
                         e.nombre_mesa, 
                         e.cantidad_mesa,
+                        e.fecha_mesa,
                         u.name_surname AS nombre_mesero,
                         CASE
                             WHEN e.disponible_mesa = 1 THEN 'Disponible'

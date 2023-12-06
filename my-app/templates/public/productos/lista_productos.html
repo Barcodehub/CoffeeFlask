@@ -120,9 +120,17 @@
 
                 {% if session['id_rol'] == 2 or session['id_rol']== 3 %}
                   <td style="width: 10px" class="align-middle text-center">
-                      <a href="" class="btn btn-success btn-sm" >
-                        Agregar al Carrito
-                      </a>
+                      <a
+                      href="#"
+                      onclick="agregarAlCarrito('{{ producto.id_producto }}');"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="tooltip"
+                      data-bs-offset="0,4"
+                      data-bs-placement="top"
+                      title="Agregar al carrito">
+                      <i class="bi bi-cart-plus"></i>
+                      Agregar al carrito
+                    </a>
                 {% endif %}
 
 

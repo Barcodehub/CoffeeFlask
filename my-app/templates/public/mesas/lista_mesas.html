@@ -47,6 +47,7 @@
               <th>Cantidad</th>
               <th>Disponibilidad</th>
               <th>Mesero a Cargo</th>
+               <th>Reservado para la fecha: </th>
               <th>Acción</th>
             </tr>
           </thead>
@@ -58,6 +59,7 @@
               <td>{{ mesa.cantidad_mesa }}</td>
               <td>{{ mesa.disponible_mesa }}</td>
                <td>{{ mesa.nombre_mesero }}</td>
+              <td>{{ mesa.fecha_mesa }}</td>
               <td width="10px">
                 <a
                   href="{{ url_for('viewEditarMesa', id = mesa.id_mesa) }}"
