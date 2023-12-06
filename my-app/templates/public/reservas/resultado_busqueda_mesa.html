@@ -1,0 +1,33 @@
+{% for mesa in dataBusqueda %}
+
+<tr id="mesa_{{ mesa.id_mesa }}">
+  <td>{{ loop.index }}</td>
+  <td>{{ mesa.nombre_mesa }}</td>
+  <td>{{ mesa.cantidad_mesa }}</td>
+  <td>{{ mesa.disponible_mesa }}</td>
+  <td>{{ mesa.nombre_mesero }}</td>
+  <td>
+    {% if session['id_rol'] == 1 %}
+    <a
+      href="{{ url_for('viewEditarMesa', id = mesa.id_mesa) }}"
+      class="btn btn-success btn-sm"
+      tooltip="Actualizar Registro">
+      <i class="bi bi-arrow-clockwise"></i>
+      Actualizar
+    </a>
+    <a
+      href="#"
+      onclick="eliminarMesa('{{ mesa.id_mesa }}');"
+      class="btn btn-danger btn-sm"
+      data-bs-toggle="tooltip"
+      data-bs-offset="0,4"
+      data-bs-placement="top"
+      data-bs-html="true"
+      title="<span>Eliminar mesa {{ mesa.nombre_mesa }}</span>">
+      <i class="bi bi-trash3"></i>
+      Eliminar
+    </a>
+  </td>
+</tr>
+{% endif %}
+{% endfor %}

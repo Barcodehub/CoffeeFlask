@@ -71,11 +71,11 @@
               <td style="width: 100px">
 
                 <div class="align-middle text-center">
-
+{% if session['id_rol'] == 2 %}
                      <div class="align-middle text-center">
                      <p class="text-dark negrilla">{{ producto.nombre_producto }}</p>
                          </div>
-
+ {% endif %}
                  <div class="">
                 <img class="img-fluid"
                   style="width: 300px"

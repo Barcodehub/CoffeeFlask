@@ -11,7 +11,7 @@ PATH_URL2 = "public/library"
 PATH_URL3 = "public/usuarios"
 PATH_URL4 = "public/productos"
 PATH_URL5 = "public/mesas"
-
+PATH_URL6 = "public/reservas"
 
 @app.route('/registrar-producto', methods=['GET'])
 def viewFormProducto():
@@ -241,23 +241,36 @@ def borrarMesa(id_mesa):
 
 
 
-@app.route('/mesa-asignada', methods=['GET'])
-def tu_vista():
-    if session['id_rol'] == 3:
-        id_mesero = session['id']
-        mesas = obtener_nombre_mesa(id_mesero)
-        return render_template(f'{PATH_URL}/perfil', mesas=mesas)
+
+
+
+
+#RESERVAS
+
+
+
+
+
+
+@app.route('/registrar-reserva', methods=['GET'])
+def viewFormReserva():
+    if 'conectado' in session:
+        return render_template(f'{PATH_URL6}/form_reserva.html')
     else:
+        flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
 
 
 
-
-
-
-
-
+@app.route('/form-registrar-reserva', methods=['POST'])
+def formReserva():
+            resultado = procesar_form_reserva(request.form, session['id'])
+            if resultado:
+                return redirect(url_for('inicio')) #vista de factura, porque lista es para admin
+            else:
+                flash('El mesa NO fue registrado.', 'error')
+                return render_template(f'{PATH_URL6}/form_reserva.html')
 
 
 

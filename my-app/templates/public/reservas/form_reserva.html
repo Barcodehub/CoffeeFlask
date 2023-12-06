@@ -1,0 +1,68 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Registrar Reserva{% endblock %}
+<!---->
+{% block customCSS %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename ='assets/css/file.css') }}" />
+{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">HACER UNA RESERVACION EN LA CAFETERIA</h3>
+      <hr />
+    </div>
+  </div>
+{% if session['id_rol'] == 2 %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="/form-registrar-reserva"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="fecha_reserva" class="form-label">
+                Fecha de la reservacion:
+              </label>
+              <input
+                type="date"
+                name="fecha_reserva"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="cantidad_reserva" class="form-label">
+                Cantidad de personas
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="cantidad_reserva"
+                required />
+            </div>
+          </div>
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar registro ahora
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %} {% block customJS %}
+<script src="{{ url_for('static', filename ='assets/customJS/file.js') }}"></script>
+{% endblock %}

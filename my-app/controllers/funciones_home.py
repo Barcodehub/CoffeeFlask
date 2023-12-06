@@ -1,4 +1,5 @@
-
+import random
+import datetime
 # Para subir archivo tipo foto al servidor
 from werkzeug.utils import secure_filename
 import uuid  # Modulo de python para crear un string
@@ -547,5 +548,43 @@ def eliminarMesa(id_mesa):
         return []
 
 
+def procesar_form_reserva(dataForm, id_usuario):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                # Obtén todas las mesas que cumplen con las condiciones
+                fecha_actual = datetime.date.today()
+                print(fecha_actual)
+                sql = """
+                SELECT id_mesa FROM tbl_mesas
+                WHERE cantidad_mesa = %s
+                AND (fecha_mesa != %s OR fecha_mesa IS NULL OR fecha_mesa < %s)
+                """
+                valores = (dataForm['cantidad_reserva'], dataForm['fecha_reserva'], fecha_actual)
+                cursor.execute(sql, valores)
+                mesas_disponibles = cursor.fetchall()
 
+                # Si no hay mesas disponibles, retorna un error
+                if not mesas_disponibles:
+                    return 'No hay mesas disponibles que cumplan con las condiciones especificadas.'
+
+                # Selecciona una mesa de forma aleatoria
+                mesa_seleccionada = random.choice(mesas_disponibles)
+
+                # Inserta la reserva en la base de datos
+                sql = "INSERT INTO tbl_reservas (fecha_reserva, cantidad_reserva, id_mesa, id_usuario) VALUES (%s, %s, %s, %s)"
+                valores = (dataForm['fecha_reserva'], dataForm['cantidad_reserva'], mesa_seleccionada['id_mesa'], id_usuario)
+                cursor.execute(sql, valores)
+
+                # Actualiza la fecha_mesa de la mesa seleccionada
+                sql = "UPDATE tbl_mesas SET fecha_mesa = %s WHERE id_mesa = %s"
+                valores = (dataForm['fecha_reserva'], mesa_seleccionada['id_mesa'])
+                cursor.execute(sql, valores)
+
+                conexion_MySQLdb.commit()
+                resultado_insert = cursor.rowcount
+                return resultado_insert
+
+    except Exception as e:
+        return f'Se produjo un error en procesar_form_reserva: {str(e)}'
 
