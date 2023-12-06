@@ -66,10 +66,7 @@ def contacto():
 
 @app.route('/mi-blog', methods=['GET'])
 def blog():
-    if 'conectado' in session:
-        return render_template(f'public/library/blog.html', info_perfil_session=info_perfil_session())
-    else:
-        return redirect(url_for('inicio'))
+        return render_template(f'public/library/blog.html')
 
 @app.route('/mi-registerbook', methods=['GET'])
 def registerbook():

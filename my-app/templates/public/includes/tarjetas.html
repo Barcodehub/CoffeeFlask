@@ -2,14 +2,15 @@
         <h1 class="text-center my-5 heading"></h1>
 
         <div class="container-xl">
-            <div class="row">
+            <div class="row {% if request.path == '/mi-historia' %} active {% endif %}">
                 <div class="col-md-4">
                     <div class="card mb-3">
                         <h3></h3>
                         <h4 class="text-center text-danger">Nuestra historia</h4>
                         <div class="card-body">
-                            <p class="card-text">Hace unos años, un grupo apasionado por el café se unió con el objetivo de llevar la experiencia cafetera a nuevas alturas, fusionando la tradición del café con la innovación tecnológica. Así nació Cafe-Cafe, una cafetería que no solo ofrece exquisitas bebidas, sino que también transforma la forma en que disfrutas de tu café diario.</p>
-                            <a href="#" class="text-danger">LEER MÁS »</a>
+                               <img src="../../../static/assets/img/logo.png" alt="Imagen de Cafe-Cafe" class="img-fluid">
+                            <p class="card-text">Hace unos años, un grupo apasionado por el café se unió con el objetivo de llevar la experiencia cafetera a nuevas alturas, fusionando...</p>
+                            <a href="/mi-historia#nuestra-historia" class="text-danger">LEER MÁS »</a>
                         </div>
                     </div>
                 </div> <!-- col-md-4 -->
@@ -17,10 +18,11 @@
                 <div class="col-md-4">
                     <div class="card mb-3">
                         <h3></h3>
-                        <h4 class="text-center text-danger">Nuestra marca</h4>
+                        <h4 class="text-center text-danger">Nuestra Politica</h4>
                         <div class="card-body">
-                            <p class="card-text">No es solo una cafetería; es una marca que representa la unión entre la artesanía del café y la comodidad moderna. Nuestra identidad se refleja en cada detalle, desde la cuidadosa selección de granos de café hasta la interfaz intuitiva de nuestra appweb. Nos enorgullece ser un espacio donde la tradición y la tecnología se abrazan, creando una experiencia única para nuestros clientes.</p>
-                            <a href="#" class="text-danger">LEER MÁS »</a>
+                               <img src="../../../static/assets/img/img/cupcake.jpg" alt="Imagen de Cafe-Cafe" class="img-fluid">
+                            <p class="card-text">No es solo una cafetería; es una marca que representa la unión entre la artesanía del café y la comodidad moderna. Nuestra identidad se refleja en cada detalle, desde la cuidadosa selección de granos de café hasta la interfaz intuitiva de nuestra appweb. Nos enorgullece ser un espacio donde la tradición y la tecnología...</p>
+                            <a href="/mi-historia#nuestra-politica" class="text-danger">LEER MÁS »</a>
                         </div>
                     </div>
                 </div> <!-- col-md-4 -->
@@ -30,8 +32,9 @@
                         <h3></h3>
                         <h4 class="text-center text-danger">Mision y Vision</h4>
                         <div class="card-body">
+                            <img src="../../../static/assets/img/img/cafeteria_nosotros.jpg" alt="Imagen de Cafe-Cafe" class="img-fluid">
                             <p class="card-text">Imaginamos un mundo donde el café no es solo una bebida, sino una puerta de entrada a un universo de sabores, aromas y conexiones significativas. Queremos liderar la revolución digital en la industria del café, siendo pioneros en la entrega de experiencias únicas a través de nuestra plataforma web y app. </p>
-                            <a href="#" class="text-danger">LEER MÁS »</a>
+                            <a href="/mi-historia#nuestra-historia" class="text-danger">LEER MÁS »</a>
                         </div>
                     </div>
                 </div> <!-- col-md-4 -->

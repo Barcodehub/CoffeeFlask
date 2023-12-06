@@ -13,6 +13,18 @@ PATH_URL4 = "public/productos"
 PATH_URL5 = "public/mesas"
 PATH_URL6 = "public/reservas"
 
+
+
+@app.route('/mi-historia', methods=['GET'])
+def historia():
+        return render_template(f'public/library/historia.html')
+
+
+
+
+
+
+
 @app.route('/registrar-producto', methods=['GET'])
 def viewFormProducto():
     if 'conectado' in session:

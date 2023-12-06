@@ -1,10 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Blog {% endblock %}
+<!--Inicio del block-->
+{% block body %}
 
-</body>
-</html>
+<div class="negro">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" id="nuestra-historia">
+                <h1>Cafe-Cafe</h1>
+                <p>Imaginamos un mundo donde el café no es solo una bebida, sino una puerta de entrada a un universo de sabores, aromas y conexiones significativas. Queremos liderar la revolución digital en la industria del café, siendo pioneros en la entrega de experiencias únicas a través de nuestra plataforma web y app.</p>
+                <p><strong>Misión:</strong> En Cafe-Cafe, nuestra misión es brindar a nuestros clientes una experiencia única y acogedora, ofreciendo cafés de alta calidad y un servicio excepcional. Nos esforzamos por crear un ambiente donde nuestros clientes puedan relajarse, disfrutar de un buen café y sentirse como en casa.</p>
+                <p><strong>Visión:</strong> Nuestra visión es ser reconocidos como la cafetería de elección en nuestra comunidad, conocidos por nuestra responsabilidad social y ambiental. Aspiramos a ser un lugar donde las personas se reúnan, se conecten y compartan ideas, todo mientras disfrutan de un delicioso café.</p>
+                <p><strong>Historia:</strong> Cafe-Cafe fue fundada en 2020 por dos amantes del café con el sueño de crear un espacio donde la gente pudiera disfrutar de un buen café en un ambiente cálido y acogedor. Desde entonces, hemos crecido y nos hemos convertido en un punto de referencia en nuestra comunidad. Nuestra historia es una de pasión por el café, dedicación al servicio al cliente y compromiso con nuestra comunidad.</p>
+                <p>Hace unos años, un grupo apasionado por el café se unió con el objetivo de llevar la experiencia cafetera a nuevas alturas, fusionando la tradición del café con la innovación tecnológica. Así nació Cafe-Cafe, una cafetería que no solo ofrece exquisitas bebidas, sino que también transforma la forma en que disfrutas de tu café diario.</p>
+            </div>
+            <div class="col-md-6">
+                <img src="../../../static/assets/img/img/cafeteria_nosotros.jpg" alt="Imagen de Cafe-Cafe" class="img-fluid">
+            </div>
+        </div>
+        <br/>
+<br/>
+        <div class="row">
+            <div class="col-md-12" id="nuestra-politica">
+                <h2>Política de Servicio</h2>
+                <p>No es solo una cafetería; es una marca que representa la unión entre la artesanía del café y la comodidad moderna. Nuestra identidad se refleja en cada detalle, desde la cuidadosa selección de granos de café hasta la interfaz intuitiva de nuestra appweb. Nos enorgullece ser un espacio donde la tradición y la tecnología se abrazan, creando una experiencia única para nuestros clientes.</p>
+                <p>En Cafe-Cafe, nos comprometemos a proporcionar un servicio excepcional a todos nuestros clientes. Nuestra política de servicio incluye lo siguiente:</p>
+                <ul>
+                    <li><strong>Calidad:</strong> Nos esforzamos por ofrecer productos de la más alta calidad, utilizando solo los mejores ingredientes. Nuestro café es seleccionado cuidadosamente y preparado con precisión para garantizar un sabor excepcional en cada taza.</li>
+                    <li><strong>Atención al cliente:</strong> Nuestro personal está siempre disponible para ayudarte con cualquier pregunta o inquietud que puedas tener. Nos enorgullece nuestro amable y eficiente servicio al cliente, y estamos comprometidos a hacer que cada visita a Cafe-Cafe sea una experiencia positiva.</li>
+                    <li><strong>Entorno:</strong> Nos esforzamos por mantener un ambiente limpio, cómodo y acogedor para todos nuestros clientes. Nuestra cafetería es un lugar donde puedes relajarte, trabajar o simplemente disfrutar de la compañía de amigos.</li>
+                    <li><strong>Responsabilidad:</strong> Nos tomamos muy en serio nuestra responsabilidad hacia nuestros clientes, nuestro personal y nuestro medio ambiente. Estamos comprometidos con prácticas comerciales éticas y sostenibles, y nos esforzamos por hacer una diferencia positiva en nuestra comunidad.</li>
+                </ul>
+                <p>Gracias por elegir Cafe-Cafe. Valoramos tu apoyo y esperamos verte pronto.</p>
+            </div>
+        </div>
+    </div>
+
+<br/>
+<br/>
+<div class="container">
+        <div class="row">
+            <div class="col-md-12" id="nuestra-faq">
+                <h2>Preguntas Frecuentes</h2>
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    ¿Qué tipos de café ofrecen en Cafe-Cafe?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                            <div class="card-body">
+                                En Cafe-Cafe, ofrecemos una variedad de cafés para satisfacer todos los gustos. Desde nuestro espresso fuerte y robusto hasta nuestro café con leche suave y cremoso, hay algo para todos. También ofrecemos una selección de cafés especiales y de temporada.
+                            </div>
+                        </div>
+                    </div>
+                   <!-- Pregunta 2 -->
+                <div class="card">
+                    <div class="card-header" id="headingTwo">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                ¿Ofrecen servicio a domicilio?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                        <div class="card-body">
+                            Sí, en Cafe-Cafe ofrecemos un conveniente servicio de entrega a domicilio a través de nuestra aplicación. Puedes disfrutar de nuestros deliciosos productos en la comodidad de tu hogar u oficina.
+                        </div>
+                    </div>
+                </div>
+                <!-- Pregunta 3 -->
+                <div class="card">
+                    <div class="card-header" id="headingThree">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                ¿Cómo puedo hacer una reservación?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                        <div class="card-body">
+                            Puedes hacer una reservación directamente desde nuestra aplicación. Solo necesitas seleccionar la fecha y el número de personas para la reservación. Te recomendamos hacer la reservación con al menos 24 horas de anticipación para asegurar tu mesa.
+                        </div>
+                    </div>
+                </div>
+              <!-- Pregunta 4 -->
+<div class="card">
+    <div class="card-header" id="headingFour">
+        <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                ¿Ofrecen opciones de comida para el desayuno, almuerzo y cena?
+            </button>
+        </h5>
+    </div>
+    <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+        <div class="card-body">
+            Sí, en Cafe-Cafe ofrecemos un menú completo que incluye opciones para el desayuno, almuerzo y cena. Nuestro menú varía según la temporada y siempre incluye opciones frescas y deliciosas.
+        </div>
+    </div>
+</div>
+<!-- Pregunta 5 -->
+<div class="card">
+    <div class="card-header" id="headingFive">
+        <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                ¿Tienen opciones de panadería y postres?
+            </button>
+        </h5>
+    </div>
+    <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion">
+        <div class="card-body">
+            Sí, ofrecemos una variedad de opciones de panadería y postres. Desde croissants recién horneados hasta pasteles decadentes, hay algo para satisfacer cualquier antojo dulce.
+        </div>
+    </div>
+</div>
+<!-- Pregunta 6 -->
+<div class="card">
+    <div class="card-header" id="headingSix">
+        <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                ¿Puedo hacer un pedido en línea a través de la aplicación?
+            </button>
+        </h5>
+    </div>
+    <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordion">
+        <div class="card-body">
+            Sí, puedes hacer un pedido en línea a través de nuestra aplicación. Simplemente selecciona los productos que deseas, añádelos a tu carrito y realiza el pago. Tu pedido estará listo para recoger en la cafetería o lo entregaremos en tu dirección.
+        </div>
+    </div>
+</div>
+<!-- Agrega más preguntas y respuestas aquí -->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+
+
+
+
+ {% endblock %}
+
