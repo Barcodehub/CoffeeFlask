@@ -1,7 +1,7 @@
 
 
 <div class="border-top py-4">
-        <div class="navbar navbar-expand-sm container navbar-light ">
+        <div class="navbar navbar-expand-md container navbar-light ">
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navegacion">
                 <span class="navbar-toggler-icon"></span>
@@ -32,7 +32,7 @@
                <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-usuarios' %} active {% endif %}">
 
                          <a href="/lista-de-usuarios" class="menu-link">
-                            <div data-i18n="Tables">Lista de Usuarios</div>
+                            <div data-i18n="Tables">Usuarios</div>
                           </a>
             </div>
                     <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-mesas' %} active {% endif %}">
@@ -57,12 +57,7 @@
                <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-productos' %} active {% endif %}">
 
                          <a href="/lista-de-productos" class="menu-link">
-                             {% if session['id_rol'] == 1 %}
-                            <div data-i18n="Tables">Gestion de productos</div>
-                             {% endif %}
-                             {% if session['id_rol'] == 2 or session['id_rol'] == 3 %}
                              <div data-i18n="Tables">Menu</div>
-                             {% endif %}
                           </a>
             </div>
 

@@ -18,6 +18,19 @@
         method="POST"
         action="/actualizar-datos-perfil">
         <div class="card-body">
+
+          <div class="mb-3 menu-item {% if request.path == '/mi-perfil' %} active {% endif %}">
+    {% if session['id_rol'] == 3 %}
+        {% for mesa in mesas %}
+            Mesa asignada: {{ mesa.nombre_mesa }}
+        {% endfor %}
+    {% endif %}
+</div>
+
+
+
+
+
           <div class="mb-3">
             <label for="name_surname" class="form-label">Usuario</label>
             <input

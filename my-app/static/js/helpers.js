@@ -267,7 +267,7 @@ const Helpers = {
 
     const clonedEl = layoutNavbar.cloneNode(true)
     clonedEl.id = null
-    clonedEl.style.visibility = 'hidden'
+    /clonedEl.style.visibility = 'hidden'
     clonedEl.style.position = 'absolute'
 
     Array.prototype.slice.call(clonedEl.querySelectorAll('.collapse.show')).forEach(el => this._removeClass('show', el))

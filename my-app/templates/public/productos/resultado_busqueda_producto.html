@@ -3,16 +3,26 @@
 <tr id="producto_{{ producto.id_producto }}">
   <td>{{ loop.index }}</td>
   <td>
-       <img
-       style="width: 200px"
-       src="/static/fotos_productos/{{ producto.foto_producto }}"
-       lt="imagen-producto" />
+       <div class="align-middle text-center">
+
+                     <div class="align-middle text-center">
+                     <p class="text-dark negrilla">{{ producto.nombre_producto }}</p>
+                         </div>
+
+                 <div class="">
+                <img class="img-fluid"
+                  style="width: 300px"
+                  src="/static/fotos_productos/{{ producto.foto_producto }}"
+                  alt="imagen-producto" />
+                </div>
+
+                </div>
 </td>
-  <td>{{ producto.nombre_producto }}</td>
+
   <td>{{ producto.precio_producto }}</td>
+  {% if session['id_rol'] == 1 %}
   <td>{{ producto.categoria_producto }}</td>
   <td>
-    {% if session['id_rol'] == 1 %}
     <a
       href="{{ url_for('viewEditarProducto', id = producto.id_producto) }}"
       class="btn btn-success btn-sm"
@@ -32,7 +42,14 @@
       <i class="bi bi-trash3"></i>
       Eliminar
     </a>
+{% endif %}
+    {% if session['id_rol'] == 2 or session['id_rol']== 3 %}
+                  <td style="width: 10px" class="align-middle text-center">
+                      <a href="" class="btn btn-success btn-sm" >
+                        Agregar al Carrito
+                      </a>
+                {% endif %}
   </td>
 </tr>
-{% endif %}
+
 {% endfor %}

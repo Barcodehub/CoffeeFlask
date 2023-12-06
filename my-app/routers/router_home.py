@@ -6,6 +6,7 @@ from mysql.connector.errors import Error
 # Importando cenexión a BD
 from controllers.funciones_home import *
 
+PATH_URL = "public/perfil"
 PATH_URL2 = "public/library"
 PATH_URL3 = "public/usuarios"
 PATH_URL4 = "public/productos"
@@ -231,7 +232,7 @@ def actualizarMesa():
         return redirect(url_for('lista_mesas'))
 
 @app.route('/borrar-mesa/<string:id_mesa>', methods=['GET'])
-def borrarMesao(id_mesa):
+def borrarMesa(id_mesa):
     resp = eliminarMesa(id_mesa)
     if resp:
         flash('El mesa fue eliminado correctamente', 'success')
@@ -240,11 +241,18 @@ def borrarMesao(id_mesa):
 
 
 
+@app.route('/mesa-asignada', methods=['GET'])
+def tu_vista():
+    if session['id_rol'] == 3:
+        id_mesero = session['id']
+        mesas = obtener_nombre_mesa(id_mesero)
+        return render_template(f'{PATH_URL}/perfil', mesas=mesas)
+    else:
+        return redirect(url_for('inicio'))
 
 
 
-
-
+, elimin
 
 
 

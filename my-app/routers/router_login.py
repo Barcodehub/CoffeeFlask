@@ -23,10 +23,22 @@ def inicio():
 
 @app.route('/mi-perfil', methods=['GET'])
 def perfil():
-    if 'conectado' in session:
+    if session['id_rol'] == 3:
+        id_mesero = session['id']
+        mesas = obtener_nombre_mesa(id_mesero)
+        return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session(), mesas=mesas)
+    elif 'conectado' in session:
         return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session())
     else:
         return redirect(url_for('inicio'))
+
+
+
+
+
+
+
+
 
 @app.route('/mi-tienda', methods=['GET'])
 def tienda():
@@ -167,7 +179,8 @@ def loginCliente():
                         return render_template('public/base_cpanel.html')
                     elif session['id_rol']==2:
                         return render_template('public/base_cpanel.html')
-
+                    else:
+                        return render_template('public/base_cpanel.html')
 
                    # flash('la sesión fue correcta.', 'success')
                     #return redirect(url_for('inicio'))

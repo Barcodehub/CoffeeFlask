@@ -54,11 +54,11 @@
               <th>Acción</th>
               {% endif %}
 
-             {% if session['id_rol'] == 2 %}
+             {% if session['id_rol'] == 2 or session['id_rol']== 3 %}
                 <th>#</th>
-              <th>Nuestros Productos</th>
-              <th>Precio</th>
-              <th>Acción</th>
+              <th class="align-middle text-center">Nuestros Productos</th>
+              <th class="align-middle text-center">Precio</th>
+              <th class="align-middle text-center">Acción</th>
              {% endif %}
 
 
@@ -118,7 +118,7 @@
                 </a>
                 {% endif %}
 
-                {% if session['id_rol'] == 2 %}
+                {% if session['id_rol'] == 2 or session['id_rol']== 3 %}
                   <td style="width: 10px" class="align-middle text-center">
                       <a href="" class="btn btn-success btn-sm" >
                         Agregar al Carrito

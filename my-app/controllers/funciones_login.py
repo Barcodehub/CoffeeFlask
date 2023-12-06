@@ -149,3 +149,22 @@ def dataLoginSesion():
         "email_user": session['email_user']
     }
     return inforLogin
+
+
+
+def obtener_nombre_mesa(id_mesero):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = """
+                SELECT tbl_mesas.nombre_mesa
+                FROM tbl_mesas
+                INNER JOIN users ON tbl_mesas.id_mesero = users.id
+                WHERE users.id = %s AND users.id_rol = 3
+                """
+                cursor.execute(querySQL, (id_mesero,))
+                resultado = cursor.fetchall()
+        return resultado
+    except Exception as e:
+        print(f"Error en obtener_nombre_mesa : {e}")
+        return []
