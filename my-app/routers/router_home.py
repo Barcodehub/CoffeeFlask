@@ -252,7 +252,7 @@ def tu_vista():
 
 
 
-, elimin
+
 
 
 
