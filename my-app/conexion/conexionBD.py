@@ -2,6 +2,7 @@
 
 # Importando Libreria mysql.connector para conectar Python con MySQL
 import mysql.connector
+import os
 
 
 def connectionBD():
