@@ -18,7 +18,7 @@ def inicio():
     if 'conectado' in session:
         return render_template('public/base_cpanel.html', info_perfil_session=info_perfil_session())
     else:
-        return render_template('public/base_cpanel.html')
+        return render_template('inicio')
 
 
 @app.route('/mi-perfil', methods=['GET'])
