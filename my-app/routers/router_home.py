@@ -52,11 +52,8 @@ def formProducto():
 
 @app.route('/lista-de-productos', methods=['GET'])
 def lista_productos():
-    if 'conectado' in session:
         return render_template(f'{PATH_URL4}/lista_productos.html', productos=sql_lista_productosBD())
-    else:
-        flash('primero debes iniciar sesión.', 'error')
-        return redirect(url_for('inicio'))
+   
 
 
 
