@@ -17,14 +17,15 @@
 
 </div>
 
-{% if session['id_rol'] == 2 %}
+
 
                    <div class="contenido-banner2 menu-item {% if request.path == '/mi-blog' %} active {% endif %}">
                        <a href="/mi-blog" class="menu-link">
                         <div data-i18n="Tables">Blog</div>
                       </a>
                    </div>
-
+                        
+{% if session['id_rol'] == 2 %}
                     <div class="contenido-banner2 {% if request.path == '/registrar-reserva' %} active {% endif %}">
                         <a href="/registrar-reserva" class="menu-link ">
                             <div data-i18n="Tables">Hacer Reservacion</div>
