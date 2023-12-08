@@ -52,9 +52,7 @@ def tienda():
 @app.route('/mi-nosotros', methods=['GET'])
 def nosotros():
     if 'conectado' in session:
-        return render_template(f'public/library/nosotros.html', info_perfil_session=info_perfil_session())
-    else:
-        return redirect(url_for('inicio'))
+        return render_template(f'public/library/nosotros.html')
 
 
 @app.route('/mi-contacto', methods=['GET'])
