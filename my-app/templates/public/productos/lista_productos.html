@@ -54,7 +54,7 @@
               <th>Acción</th>
               {% endif %}
 
-             {% if session['id_rol'] == 2 or session['id_rol']== 3 %}
+             {% if session['id_rol'] == 2 or session['id_rol']== 3 or not session %}
                 <th>#</th>
               <th class="align-middle text-center">Nuestros Productos</th>
               <th class="align-middle text-center">Precio</th>
@@ -71,7 +71,7 @@
               <td style="width: 100px">
 
                 <div class="align-middle text-center">
-{% if session['id_rol'] == 2 %}
+{% if session['id_rol'] == 2 or not session%}
                      <div class="align-middle text-center">
                      <p class="text-dark negrilla">{{ producto.nombre_producto }}</p>
                          </div>
@@ -118,7 +118,7 @@
                 </a>
                 {% endif %}
 
-                {% if session['id_rol'] == 2 or session['id_rol']== 3 %}
+                {% if session['id_rol'] == 2 or session['id_rol']== 3 or not session %}
                   <td style="width: 10px" class="align-middle text-center">
                       <a
                       href="#"
