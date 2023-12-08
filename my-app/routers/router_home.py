@@ -12,7 +12,7 @@ PATH_URL3 = "public/usuarios"
 PATH_URL4 = "public/productos"
 PATH_URL5 = "public/mesas"
 PATH_URL6 = "public/reservas"
-
+PATH_URL_LOGIN = "public/login"
 
 
 @app.route('/mi-historia', methods=['GET'])
@@ -267,7 +267,7 @@ def viewFormReserva():
         return render_template(f'{PATH_URL6}/form_reserva.html')
     else:
         flash('primero debes iniciar sesión.', 'error')
-        return redirect(url_for('inicio'))
+        return render_template(f'{PATH_URL_LOGIN}/base_login.html')
 
 
 
