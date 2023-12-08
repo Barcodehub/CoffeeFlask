@@ -52,7 +52,7 @@ def tienda():
 
 @app.route('/mi-nosotros', methods=['GET'])
 def nosotros():
-        return render_template(f'public/library/nosotros.html', info_perfil_session=info_perfil_session())
+        return render_template(f'public/library/nosotros.html')
 
 
 @app.route('/mi-contacto', methods=['GET'])
