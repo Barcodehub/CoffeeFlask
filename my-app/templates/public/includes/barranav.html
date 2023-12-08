@@ -76,7 +76,7 @@
 
 
 
-{% if session['id_rol'] == 1 or session['id_rol'] == 2 or session['id_rol'] == 3 %}
+{% if session %}
                 <div
               class="contenido-banner2 menu-item {% if request.path == '/mi-perfil' %} active {% endif %}">
               <a href="/mi-perfil" class="menu-link">
@@ -85,7 +85,7 @@
               </a>
 </div>
 {% endif %}
-{% if session['id_rol'] == 1 or session['id_rol'] == 2 or session['id_rol'] == 3 %}
+{% if session %}
               <div class="contenido-banner2 menu-item">
           <a href="{{ url_for('cerraSesion') }}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
@@ -93,7 +93,7 @@
           </a>
 </div>
 {% endif %}
-{% if not session['id_rol'] == 1 and not session['id_rol'] == 2 and not session['id_rol'] == 3 %}
+{% if not session %}
          <div class="contenido-banner2 menu-item">
           <a href="{{ url_for('cerraSesion') }}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
