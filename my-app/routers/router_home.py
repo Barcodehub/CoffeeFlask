@@ -119,7 +119,7 @@ def usuarios():
         resp_usuariosBD = lista_usuariosBD()
         return render_template('public/usuarios/lista_usuarios.html', resp_usuariosBD=resp_usuariosBD)
     else:
-        return redirect(url_for('inicioCpanel'))
+        return redirect(url_for('inicio'))
 
 
 
@@ -277,12 +277,16 @@ def viewFormReserva():
 
 @app.route('/form-registrar-reserva', methods=['POST'])
 def formReserva():
+        if 'conectado' in session:
             resultado = procesar_form_reserva(request.form, session['id'])
             if resultado:
                 return redirect(url_for('inicio')) #vista de factura, porque lista es para admin
             else:
                 flash('El mesa NO fue registrado.', 'error')
                 return render_template(f'{PATH_URL6}/form_reserva.html')
+        else:
+        flash('primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
 
 
 
