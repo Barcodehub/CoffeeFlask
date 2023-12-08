@@ -51,8 +51,7 @@ def tienda():
 
 @app.route('/mi-nosotros', methods=['GET'])
 def nosotros():
-    if 'conectado' in session:
-        return render_template(f'public/library/nosotros.html')
+    return render_template(f'public/library/nosotros.html')
 
 
 @app.route('/mi-contacto', methods=['GET'])
