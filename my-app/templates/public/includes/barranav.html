@@ -17,7 +17,7 @@
 
 </div>
 
-{% if session['id_rol'] == 2 %}
+
 
                    <div class="contenido-banner2 menu-item {% if request.path == '/mi-blog' %} active {% endif %}">
                        <a href="/mi-blog" class="menu-link">
@@ -30,7 +30,7 @@
                             <div data-i18n="Tables">Hacer Reservacion</div>
                           </a>
                     </div>
-{% endif %}
+
 
 {% if session['id_rol'] == 1 %}
 
@@ -76,7 +76,7 @@
 
 
 
-
+{% if session %}
                 <div
               class="contenido-banner2 menu-item {% if request.path == '/mi-perfil' %} active {% endif %}">
               <a href="/mi-perfil" class="menu-link">
@@ -84,14 +84,22 @@
                 <div data-i18n="Tables">Mi Perfil</div>
               </a>
 </div>
-
-
+{% endif %}
+{% if session %}
               <div class="contenido-banner2 menu-item">
           <a href="{{ url_for('cerraSesion') }}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
             <div data-i18n="Tables">Salir</div>
           </a>
 </div>
+{% endif %}
+{% if not session %}
+         <div class="contenido-banner2 menu-item">
+          <a href="{{ url_for('cerraSesion') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
+            <div data-i18n="Tables">Inicia Sesion</div>
+          </a>
+{% endif %}            
 
                 </nav>
             </div>
