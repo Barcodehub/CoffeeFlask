@@ -24,13 +24,13 @@
                         <div data-i18n="Tables">Blog</div>
                       </a>
                    </div>
-
+{% if not session['id_rol'] == 1 and not session['id_rol'] == 3 or if not session %}
                     <div class="contenido-banner2 {% if request.path == '/registrar-reserva' %} active {% endif %}">
                         <a href="/registrar-reserva" class="menu-link ">
                             <div data-i18n="Tables">Hacer Reservacion</div>
                           </a>
                     </div>
-
+{% endif %}
 
 {% if session['id_rol'] == 1 %}
 
