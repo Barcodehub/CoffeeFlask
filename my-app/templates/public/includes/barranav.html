@@ -75,7 +75,7 @@
             </div>
 
 
-
+{% if session %}
 
                 <div
               class="contenido-banner2 menu-item {% if request.path == '/mi-perfil' %} active {% endif %}">
@@ -84,7 +84,7 @@
                 <div data-i18n="Tables">Mi Perfil</div>
               </a>
 </div>
-
+{% endif %}
 
               <div class="contenido-banner2 menu-item">
           <a href="{{ url_for('cerraSesion') }}" class="menu-link">
