@@ -1,0 +1,25 @@
+{% for factura in dataBusqueda %}
+
+<tr id="factura_{{ factura.id }}">
+              <td>{{ loop.index }}</td>
+              <td>{{ factura.usuario_nombre }}</td>
+              <td>{{ factura.fecha }}</td>
+              <td>{{ factura.total }}</td>
+  <td>
+    {% if session['id_rol'] == 1 %}
+     <a
+                  href="#"
+                  onclick="eliminarFactura('{{ factura.id }}');"
+                  class="btn btn-danger btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Eliminar factura {{ factura.usuario_nombre }}</span>">
+                  <i class="bi bi-trash3"></i>
+                  Eliminar
+                </a>
+  </td>
+</tr>
+{% endif %}
+{% endfor %}

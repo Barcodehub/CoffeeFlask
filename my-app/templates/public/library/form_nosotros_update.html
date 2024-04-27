@@ -1,0 +1,126 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Editar Nosotros{% endblock %}
+<!---->
+{% block customCSS %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename ='assets/css/file.css') }}" />
+{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">
+        <a href="/mi-nosotros">
+          <i class="bi bi-arrow-left-circle"></i>
+        </a>
+        ACTUALIZAR DATOS DE NOSOTROS
+      </h3>
+      <hr />
+    </div>
+  </div>
+{% if session['id_rol'] == 1 %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="{{ url_for('actualizarNosotro', id = respuestaNosotro.id_edicion ) }}"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <input
+          type="text"
+          class="form-control"
+          name="id_edicion"
+          value="{{ respuestaNosotro.id_edicion }}"
+          required
+          hidden />
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="nosotros_titulo" class="form-label">
+                Titulo:
+              </label>
+              <input
+                type="text"
+                name="nosotros_titulo"
+                value="{{ respuestaNosotro.nosotros_titulo }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="nosotros_parrafo" class="form-label">
+                Parrafo:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="nosotros_parrafo"
+                value="{{ respuestaNosotro.nosotros_parrafo }}"
+                required />
+            </div>
+          </div>
+
+
+
+
+
+          <div class="row mt-2">
+
+            <div class="col-md-6">
+              <label for="" class="form-label"> FOTO </label>
+              <br />
+              <img
+                src="/static/foto_edits/{{ respuestaNosotro.nosotros_imagen }}"
+                style="width: 150px"
+                alt="{{ respuestaNosotro.nosotros_titulo }}" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label for="" class="form-label">
+                ACTUALIZAR LA FOTO
+              </label>
+              <div class="avatar-upload">
+                <div class="avatar-edit">
+                  <input
+                    type="file"
+                    name="nosotros_imagen"
+                    id="imageUpload"
+                    accept=".png, .jpg, .jpeg" />
+                  <label for="imageUpload"><i class="bi bi-pen"></i></label>
+                </div>
+                <div class="avatar-preview">
+                  {% set url_avatar= url_for('static', filename
+                  ='assets/img/avatar.png') %}
+                  <div
+                    id="imagePreview"
+                    style="background-image: url('{{ url_avatar }}')"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar registro ahora
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %} {% block customJS %}
+<script src="{{ url_for('static', filename ='assets/customJS/file.js') }}"></script>
+{% endblock %}

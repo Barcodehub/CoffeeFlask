@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reporte de Ventas</title>
+    <style>
+        /* Agrega estilos según tus necesidades */
+    </style>
+</head>
+<body>
+    <h1>Reporte de Ventas</h1>
+    <p>Fecha Inicio: {{ fecha_inicio }}</p>
+    <p>Fecha Fin: {{ fecha_fin }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Fecha</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for factura in facturas %}
+            <tr>
+                <td>{{ factura.usuario_nombre }}</td>
+                <td>{{ factura.fecha }}</td>
+                <td>{{ factura.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

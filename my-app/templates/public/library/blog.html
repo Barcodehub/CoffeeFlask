@@ -30,7 +30,7 @@
 
         </article>
 
-        <article class="mb-2 pb-5 border-top">
+        <article id="miSeccion" class="mb-2 pb-5 border-top">
             <h2 class="my-5">El Arte de la Preparación del Café</h2>
             <img class="img-fluid" src="../../../static/assets/img/img/barista.jpg" alt="imagen blog">
 
@@ -71,9 +71,47 @@
     </aside>
 </div>
 
+
+
+
+    <button id="miBoton">Crear Contenido</button>
+
+<script>
+
+document.querySelector("#miBoton").addEventListener("click", function() {
+    let nuevoContenido = `
+    <article class="mb-2 pb-5">
+        <h2 class="my-5">Explorando los Sabores del Café</h2>
+        <img class="img-fluid" src="../../../static/assets/img/img/cafe.jpg" alt="imagen blog">
+
+        <div class="d-flex flex-column flex-md-row justify-content-md-between py-4">
+            <p class="fw-bold">Fecha:
+                <span class="text-primary">22 de octubre de 2022</span>
+            </p>
+            <p class="fw-bold">Escrito por:
+                <span class="text-primary">CaféLovers</span>
+            </p>
+        </div>
+
+        <p>El café es una bebida que se disfruta en todo el mundo. Con su rico sabor y aroma, es una excelente manera de comenzar el día o de disfrutar durante una pausa en la tarde.</p>
+
+        <p>En este blog, exploraremos los diferentes sabores del café, desde los más suaves hasta los más fuertes, y cómo estos sabores pueden variar dependiendo de la región en la que se cultiva el café.</p>
+
+        <a href="entrada.html" class="btn btn-success px-5 py-3 fs-3 text-uppercase fw-bold rounded-0 d-block d-md-inline-block">Continuar Leyendo</a>
+
+    </article>`;
+
+    
+    document.querySelector("#miSeccion").insertAdjacentHTML("beforeend", nuevoContenido);
+});
+
+
+
+</script>
+
+
+
     </section>
-
-
 
 
  {% endblock %}

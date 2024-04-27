@@ -5,14 +5,14 @@
   <td>{{ usuario.name_surname}}</td>
   <td>{{ usuario.email_user}}</td>
   <td>
-                {% if usuario.id_rol == 1 %}
+      {% if usuario.id_rol == 1 %}
                 Admin
             {% elif usuario.id_rol == 3 %}
                 Mesero
             {% else %}
                 User
             {% endif %}
-            </td>
+  </td>
   <td>{{ usuario.created_user}}</td>
   <td>
     {% if session['id_rol'] == 1 %}

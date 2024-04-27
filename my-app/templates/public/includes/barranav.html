@@ -19,11 +19,11 @@
 
 
 
-                   <div class="contenido-banner2 menu-item {% if request.path == '/mi-blog' %} active {% endif %}">
+                  <!--  <div class="contenido-banner2 menu-item {% if request.path == '/mi-blog' %} active {% endif %}">
                        <a href="/mi-blog" class="menu-link">
                         <div data-i18n="Tables">Blog</div>
                       </a>
-                   </div>
+                   </div> -->
 {% if not session['id_rol'] == 1 and not session['id_rol'] == 3 %}
                     <div class="contenido-banner2 {% if request.path == '/registrar-reserva' %} active {% endif %}">
                         <a href="/registrar-reserva" class="menu-link ">
@@ -50,8 +50,8 @@
 
              <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-reservas' %} active {% endif %}">
 
-                         <a href="/lista-de-reservas" class="menu-link">
-                            <div data-i18n="Tables">Reservas</div>
+                         <a href="/lista-de-facturas" class="menu-link">
+                            <div data-i18n="Tables">Ventas</div>
                           </a>
             </div>
 

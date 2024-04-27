@@ -23,6 +23,16 @@
       </div>
 {% endif %}
 
+                    <a href="/carrito" >
+
+                            <div data-i18n="Tables"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shopping-cart" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+  <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+  <path d="M17 17h-11v-14h-2" />
+  <path d="M6 5l14 1l-1 7h-13" />
+</svg></div>
+                          </a>
 
       <div class="col-md-6 mt-4 py-2">
         <input
@@ -120,17 +130,14 @@
 
                 {% if session['id_rol'] == 2 or session['id_rol']== 3 or not session %}
                   <td style="width: 10px" class="align-middle text-center">
-                      <a
-                      href="#"
-                      onclick="agregarAlCarrito('{{ producto.id_producto }}');"
-                      class="btn btn-primary btn-sm"
-                      data-bs-toggle="tooltip"
-                      data-bs-offset="0,4"
-                      data-bs-placement="top"
-                      title="Agregar al carrito">
-                      <i class="bi bi-cart-plus"></i>
-                      Agregar al carrito
-                    </a>
+
+                    <a
+                  href="{{ url_for('agregar_al_carrito', id_producto = producto.id_producto) }}"
+                  class="btn btn-success btn-sm"
+                  tooltip="Agregar al carrito">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Agregar al carrito
+                </a>
                 {% endif %}
 
 

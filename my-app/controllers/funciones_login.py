@@ -64,7 +64,7 @@ def info_perfil_session():
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = "SELECT name_surname, email_user FROM users WHERE id = %s"
-                cursor.execute(querySQL, (session['id'],))
+                cursor.execute(querySQL, (session['usuario_id'],))
                 info_perfil = cursor.fetchall()
         return info_perfil
     except Exception as e:
@@ -74,7 +74,7 @@ def info_perfil_session():
 
 def procesar_update_perfil(data_form):
     # Extraer datos del diccionario data_form
-    id_user = session['id']
+    id_user = session['usuario_id']
     name_surname = data_form['name_surname']
     email_user = data_form['email_user']
     pass_actual = data_form['pass_actual']

@@ -9,7 +9,7 @@ from conexion.conexionBD import connectionBD  # Conexión a BD
 import datetime
 import re
 import os
-
+#import stripe
 from os import remove  # Modulo  para remover archivo
 from os import path  # Modulo para obtener la ruta o directorio
 
@@ -89,6 +89,7 @@ def buscarProductoUnico(id):
                             e.nombre_producto, 
                             e.precio_producto,
                             e.categoria_producto,
+                            e.cantidad,
                             e.foto_producto
                         FROM tbl_productos AS e
                         WHERE e.id_producto =%s LIMIT 1
@@ -590,3 +591,348 @@ def procesar_form_reserva(dataForm, id_usuario):
     except Exception as e:
         return f'Se produjo un error en procesar_form_reserva: {str(e)}'
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#carrito
+def obtener_carrito_usuario(usuario_id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                query = "SELECT id FROM carritos WHERE usuario_id = %s"
+                cursor.execute(query, (usuario_id,))
+                carrito = cursor.fetchone()
+                return carrito
+    except Exception as e:
+        print(f"Error al obtener el carrito del usuario: {e}")
+        return None
+
+def crear_carrito_usuario(usuario_id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                query = "INSERT INTO carritos (usuario_id) VALUES (%s)"
+                cursor.execute(query, (usuario_id,))
+                carrito_id = cursor.lastrowid
+                conexion_MySQLdb.commit()
+                return carrito_id
+    except Exception as e:
+        print(f"Error al crear el carrito del usuario: {e}")
+        return None
+
+def agregar_producto_carrito(carrito_id, id_producto, cantidad):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                # Verificar si el producto ya está en el carrito
+                query = "SELECT id, cantidad FROM carrito_productos WHERE carrito_id = %s AND producto_id = %s"
+                cursor.execute(query, (carrito_id, id_producto))
+                producto_carrito = cursor.fetchone()
+
+                if producto_carrito:
+                    # Si el producto ya está en el carrito, actualizar la cantidad
+                    nueva_cantidad = producto_carrito['cantidad'] + cantidad
+                    query = "UPDATE carrito_productos SET cantidad = %s WHERE id = %s"
+                    cursor.execute(query, (nueva_cantidad, producto_carrito['id']))
+                else:
+                    # Si el producto no está en el carrito, insertarlo
+                    query = "INSERT INTO carrito_productos (carrito_id, producto_id, cantidad) VALUES (%s, %s, %s)"
+                    cursor.execute(query, (carrito_id, id_producto, cantidad))
+
+                conexion_MySQLdb.commit()
+    except Exception as e:
+        print(f"Error al agregar el producto al carrito: {e}")
+
+
+
+
+
+
+
+def obtener_productos_carrito(usuario_id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                query = """
+                    SELECT p.id_producto, p.nombre_producto, p.precio_producto, cp.cantidad
+                    FROM carritos c
+                    JOIN carrito_productos cp ON c.id = cp.carrito_id
+                    JOIN tbl_productos p ON cp.producto_id = p.id_producto
+                    WHERE c.usuario_id = %s
+                """
+                cursor.execute(query, (usuario_id,))
+                productos_carrito = cursor.fetchall()
+                return productos_carrito
+    except Exception as e:
+        print(f"Error al obtener los productos del carrito: {e}")
+        return []
+
+def calcular_total_carrito(productos_carrito):
+    total = 0
+    for producto in productos_carrito:
+        total += producto['precio_producto'] * producto['cantidad']
+    return total
+
+def actualizar_cantidad_producto(usuario_id, id_producto, cantidad):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                query = """
+                    UPDATE carrito_productos cp
+                    JOIN carritos c ON cp.carrito_id = c.id
+                    SET cp.cantidad = %s
+                    WHERE c.usuario_id = %s AND cp.producto_id = %s
+                """
+                cursor.execute(query, (cantidad, usuario_id, id_producto))
+            conexion_MySQLdb.commit()
+    except Exception as e:
+        print(f"Error al actualizar la cantidad del producto: {e}")
+
+def eliminar_producto_carrito(usuario_id, id_producto):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                query = """
+                    DELETE cp
+                    FROM carrito_productos cp
+                    JOIN carritos c ON cp.carrito_id = c.id
+                    WHERE c.usuario_id = %s AND cp.producto_id = %s
+                """
+                cursor.execute(query, (usuario_id, id_producto))
+            conexion_MySQLdb.commit()
+    except Exception as e:
+        print(f"Error al eliminar el producto del carrito: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
+#PAGO
+def generar_orden_compra(usuario_id, productos_carrito, total_carrito):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                # Insertar la orden de compra en la tabla de órdenes
+                query = "INSERT INTO ordenes (usuario_id, total) VALUES (%s, %s)"
+                cursor.execute(query, (usuario_id, total_carrito))
+                orden_id = cursor.lastrowid
+
+                # Insertar los productos de la orden en la tabla de detalles de la orden
+                for producto in productos_carrito:
+                    query = "INSERT INTO ordenes_detalles (orden_id, producto_id, cantidad, precio) VALUES (%s, %s, %s, %s)"
+                    cursor.execute(query, (orden_id, producto['id_producto'], producto['cantidad'], producto['precio_producto']))
+
+                conexion_MySQLdb.commit()
+                return orden_id
+    except Exception as e:
+        print(f"Error al generar la orden de compra: {e}")
+        return None
+
+def vaciar_carrito(usuario_id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                query = "DELETE FROM carrito_productos WHERE carrito_id = (SELECT id FROM carritos WHERE usuario_id = %s)"
+                cursor.execute(query, (usuario_id,))
+                conexion_MySQLdb.commit()
+    except Exception as e:
+        print(f"Error al vaciar el carrito: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
+#FACTURA
+def insertar_factura(factura):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                # Obtener el nombre de usuario de la tabla usuarios
+                query_usuario = "SELECT name_surname FROM users WHERE id = %s"
+                cursor.execute(query_usuario, (factura['usuario_id'],))
+                usuario_nombre = cursor.fetchone()[0]
+
+                # Insertar la factura con el nombre de usuario
+                query = "INSERT INTO facturas (usuario_id, usuario_nombre, total) VALUES (%s, %s, %s)"
+                valores = (factura['usuario_id'], usuario_nombre, factura['total'])
+                cursor.execute(query, valores)
+                factura_id = cursor.lastrowid
+            conexion_MySQLdb.commit()
+        return factura_id
+    except Exception as e:
+        print(f"Error al insertar la factura: {e}")
+        return None
+
+def insertar_detalle_factura(detalle):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor() as cursor:
+                query = "INSERT INTO factura_productos (factura_id, producto_id, cantidad, precio) VALUES (%s, %s, %s, %s)"
+                valores = (detalle['factura_id'], detalle['producto_id'], detalle['cantidad'], detalle['precio'])
+                cursor.execute(query, valores)
+            conexion_MySQLdb.commit()
+    except Exception as e:
+        print(f"Error al insertar el detalle de la factura: {e}")
+
+def obtener_factura(factura_id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                query = """
+                    SELECT f.id, f.usuario_id, u.name_surname AS usuario_nombre, f.fecha, f.total
+                    FROM facturas f
+                    JOIN users u ON f.usuario_id = u.id
+                    WHERE f.id = %s
+                """
+                cursor.execute(query, (factura_id,))
+                factura = cursor.fetchone()
+                return factura
+    except Exception as e:
+        print(f"Error al obtener la factura: {e}")
+        return None
+
+def obtener_productos_factura(factura_id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                query = "SELECT fp.cantidad, p.nombre_producto, p.precio_producto FROM factura_productos fp JOIN tbl_productos p ON fp.producto_id = p.id_producto WHERE fp.factura_id = %s"
+                cursor.execute(query, (factura_id,))
+                productos_factura = cursor.fetchall()
+                return productos_factura
+    except Exception as e:
+        print(f"Error al obtener los productos de la factura: {e}")
+        return None
+
+
+
+
+# Lista de facturas
+def sql_lista_facturasBD():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = (f"""
+                    SELECT 
+                        e.id,
+                        e.usuario_id,
+                        e.usuario_nombre, 
+                        e.fecha,
+                        e.total
+                    FROM facturas AS e
+                    ORDER BY e.id DESC
+                    """)
+                cursor.execute(querySQL,)
+                facturasBD = cursor.fetchall()
+        return facturasBD
+    except Exception as e:
+        print(
+            f"Error en la función sql_lista_facturasBD: {e}")
+        return None
+
+
+
+
+def buscarFacturaBD(search):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
+                querySQL = ("""
+                        SELECT 
+                        e.id,
+                        e.usuario_id, 
+                        e.usuario_nombre,
+                        e.fecha,
+                        e.total
+                    FROM facturas AS e
+                    WHERE e.usuario_nombre LIKE %s 
+                    ORDER BY e.id DESC
+                    """)
+                search_pattern = f"%{search}%"  # Agregar "%" alrededor del término de búsqueda
+                mycursor.execute(querySQL, (search_pattern,))
+                resultado_busqueda = mycursor.fetchall()
+                return resultado_busqueda
+
+    except Exception as e:
+        print(f"Ocurrió un error en def buscarFacturaBD: {e}")
+        return []
+
+
+def eliminarFactura(id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "DELETE FROM facturas WHERE id=%s"
+                cursor.execute(querySQL, (id,))
+                conexion_MySQLdb.commit()
+                resultado_eliminar = cursor.rowcount
+
+
+
+        return resultado_eliminar
+    except Exception as e:
+        print(f"Error en eliminarFactura : {e}")
+        return []
+
+
+
+def sql_facturas_reporte(fecha_inicio=None, fecha_fin=None):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = (f"""
+                    SELECT 
+                        e.id,
+                        e.usuario_id,
+                        e.usuario_nombre, 
+                        e.fecha,
+                        e.total
+                    FROM facturas AS e
+                    WHERE 1=1
+                """)
+                if fecha_inicio:
+                    querySQL += f" AND e.fecha >= '{fecha_inicio}'"
+                if fecha_fin:
+                    querySQL += f" AND e.fecha <= '{fecha_fin}'"
+                querySQL += " ORDER BY e.id DESC"
+                cursor.execute(querySQL)
+                facturasBD = cursor.fetchall()
+        return facturasBD
+    except Exception as e:
+        print(f"Error en la función sql_facturas_reporte: {e}")
+        return None

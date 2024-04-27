@@ -42,10 +42,20 @@ function eliminarProducto(id_producto, foto_producto) {
     }
   }
 }
-
+//mesa
 function eliminarMesa(id_mesa) {
   if (confirm("¿Estas seguro que deseas Eliminar la mesa?")) {
     let url = `/borrar-mesa/${id_mesa}`;
+    if (url) {
+      window.location.href = url;
+    }
+  }
+}
+
+//factura
+function eliminarFactura(id) {
+  if (confirm("¿Estas seguro que deseas Eliminar la factura?")) {
+    let url = `/borrar-factura/${id}`;
     if (url) {
       window.location.href = url;
     }

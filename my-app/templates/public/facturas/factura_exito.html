@@ -1,0 +1,37 @@
+
+
+
+<div class="container mt-4">
+        <h1>Factura de Compra</h1>
+        <hr>
+        <h3>Detalles de la Factura</h3>
+        <p>Número de Factura: {{ factura.id }}</p>
+        <p>Fecha: {{ factura.fecha.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        <p>Total: ${{ factura.total }}</p>
+
+        <h3>Productos Comprados</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos_factura %}
+                <tr>
+                    <td>{{ producto.nombre_producto }}</td>
+                    <td>${{ producto.precio_producto }}</td>
+                    <td>{{ producto.cantidad }}</td>
+                    <td>${{ (producto.precio_producto * producto.cantidad)|round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('factura_pdf', factura_id=factura.id) }}" class="btn btn-primary">Descargar Factura PDF</a>
+        <p>¡Gracias por tu compra!</p>
+    </div>
+
+

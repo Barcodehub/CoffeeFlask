@@ -1,0 +1,289 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Editar Historia{% endblock %}
+<!---->
+{% block customCSS %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename ='assets/css/file.css') }}" />
+{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">
+        <a href="/mi-historia">
+          <i class="bi bi-arrow-left-circle"></i>
+        </a>
+        ACTUALIZAR DATOS DE HISTORIA
+      </h3>
+      <hr />
+    </div>
+  </div>
+{% if session['id_rol'] == 1 %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="{{ url_for('actualizarHistoria', id = respuestaHistoria.id_titulo ) }}"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <input
+          type="text"
+          class="form-control"
+          name="id_edicion"
+          value="{{ respuestaHistoria.id_titulo }}"
+          required
+          hidden />
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="titulo1" class="form-label">
+                titulo1:
+              </label>
+              <input
+                type="text"
+                name="titulo1"
+                value="{{ respuestaHistoria.titulo1 }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="titulo2" class="form-label">
+                titulo2:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="titulo2"
+                value="{{ respuestaHistoria.titulo2 }}"
+                required />
+            </div>
+          </div>
+</div>
+
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="titulo3" class="form-label">
+                titulo3:
+              </label>
+              <input
+                type="text"
+                name="titulo3"
+                value="{{ respuestaHistoria.titulo3 }}"
+                class="form-control"
+                required />
+            </div>
+
+</div>
+</div>
+
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="subtitulo1" class="form-label">
+                subtitulo1:
+              </label>
+              <input
+                type="text"
+                name="subtitulo1"
+                value="{{ respuestaHistoria.subtitulo1 }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="subtitulo2" class="form-label">
+                subtitulo2:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="subtitulo2"
+                value="{{ respuestaHistoria.subtitulo2 }}"
+                required />
+            </div>
+          </div>
+</div>
+
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="subtitulo3" class="form-label">
+                subtitulo3:
+              </label>
+              <input
+                type="text"
+                name="subtitulo3"
+                value="{{ respuestaHistoria.subtitulo3 }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="subtitulo4" class="form-label">
+                subtitulo4:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="subtitulo4"
+                value="{{ respuestaHistoria.subtitulo4 }}"
+                required />
+            </div>
+          </div>
+</div>
+
+
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="subtitulo5" class="form-label">
+                subtitulo5:
+              </label>
+              <input
+                type="text"
+                name="subtitulo5"
+                value="{{ respuestaHistoria.subtitulo5 }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="subtitulo6" class="form-label">
+                subtitulo6:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="subtitulo6"
+                value="{{ respuestaHistoria.subtitulo6 }}"
+                required />
+            </div>
+          </div>
+</div>
+
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="subtitulo7" class="form-label">
+                subtitulo7:
+              </label>
+              <input
+                type="text"
+                name="subtitulo7"
+                value="{{ respuestaHistoria.subtitulo7 }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="subtitulo8" class="form-label">
+                subtitulo8:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="subtitulo8"
+                value="{{ respuestaHistoria.subtitulo8 }}"
+                required />
+            </div>
+          </div>
+</div>
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="subtitulo9" class="form-label">
+                subtitulo9:
+              </label>
+              <input
+                type="text"
+                name="subtitulo9"
+                value="{{ respuestaHistoria.subtitulo9 }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="subtitulo10" class="form-label">
+                subtitulo10:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="subtitulo10"
+                value="{{ respuestaHistoria.subtitulo10 }}"
+                required />
+            </div>
+          </div>
+
+</div>
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="subtitulo11" class="form-label">
+                subtitulo11:
+              </label>
+              <input
+                type="text"
+                name="subtitulo11"
+                value="{{ respuestaHistoria.subtitulo11 }}"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="subtitulo12" class="form-label">
+                subtitulo12:
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="subtitulo12"
+                value="{{ respuestaHistoria.subtitulo12 }}"
+                required />
+            </div>
+          </div>
+
+</div>
+
+<div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="subtitulo13" class="form-label">
+                subtitulo13:
+              </label>
+              <input
+                type="text"
+                name="subtitulo13"
+                value="{{ respuestaHistoria.subtitulo13 }}"
+                class="form-control"
+                required />
+            </div>
+
+
+          </div>
+
+</div>
+
+
+
+
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar registro ahora
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %} {% block customJS %}
+<script src="{{ url_for('static', filename ='assets/customJS/file.js') }}"></script>
+{% endblock %}

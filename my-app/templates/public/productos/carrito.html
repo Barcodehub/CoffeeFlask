@@ -1,0 +1,68 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de productos{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+
+
+
+
+<h1>Carrito de Compras</h1>
+
+{% if not carrito %}
+<p>Tu carrito está vacío.</p>
+{% else %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Precio</th>
+      <th>Cantidad</th>
+      <th>Subtotal</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in carrito %}
+    <tr>
+      <td>{{ item.nombre_producto }}</td>
+      <td>${{ item.precio_producto }}</td>
+      <td>
+        <form method="post" action="{{ url_for('actualizar_cantidad', id_producto=item.id_producto) }}">
+          <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" max="10" required>
+          <button type="submit" class="btn btn-primary btn-sm">Actualizar</button>
+        </form>
+      </td>
+      <td>${{ (item.precio_producto * item.cantidad)|round(2) }}</td>
+      <td>
+        <a href="{{ url_for('eliminar_del_carrito', id_producto=item.id_producto) }}" class="btn btn-danger btn-sm">Eliminar</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3" class="text-right">Total:</td>
+      <td>${{ total_carrito|round(2) }}</td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>
+<a href="{{ url_for('checkout') }}" class="btn btn-primary">Proceder al Checkout</a>
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

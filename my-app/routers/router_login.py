@@ -24,7 +24,7 @@ def inicio():
 @app.route('/mi-perfil', methods=['GET'])
 def perfil():
     if session['id_rol'] == 3:
-        id_mesero = session['id']
+        id_mesero = session['id'] #id o usuario_id
         mesas = obtener_nombre_mesa(id_mesero)
         return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session(), mesas=mesas)
     elif 'conectado' in session:
@@ -49,9 +49,7 @@ def tienda():
 
 
 
-@app.route('/mi-nosotros', methods=['GET'])
-def nosotros():
-    return render_template(f'public/library/nosotros.html')
+
 
 
 @app.route('/mi-contacto', methods=['GET'])
@@ -161,7 +159,8 @@ def loginCliente():
                 if check_password_hash(account['pass_user'], pass_user):
                     # Crear datos de sesión, para poder acceder a estos datos en otras rutas
                     session['conectado'] = True
-                    session['id'] = account['id']
+                    #session['id'] = account['id']
+                    session['usuario_id'] = account['id']
                     session['name_surname'] = account['name_surname']
                     session['email_user'] = account['email_user']
 
@@ -196,7 +195,7 @@ def cerraSesion():
         if 'conectado' in session:
             # Eliminar datos de sesión, esto cerrará la sesión del usuario
             session.pop('conectado', None)
-            session.pop('id', None)
+            session.pop('usuario_id', None)
             session.pop('name_surname', None)
             session.pop('email', None)
             flash('tu sesión fue cerrada correctamente.', 'success')

@@ -1,10 +1,14 @@
+import io
+
+import pdfkit
 from app import app
-from flask import render_template, request, flash, redirect, url_for, session,  jsonify
+from flask import render_template, request, flash, redirect, url_for, session, jsonify, make_response
 from mysql.connector.errors import Error
 
 
 # Importando cenexión a BD
 from controllers.funciones_home import *
+from xhtml2pdf import pisa
 
 PATH_URL = "public/perfil"
 PATH_URL2 = "public/library"
@@ -12,16 +16,8 @@ PATH_URL3 = "public/usuarios"
 PATH_URL4 = "public/productos"
 PATH_URL5 = "public/mesas"
 PATH_URL6 = "public/reservas"
+PATH_URL7 = "public/facturas"
 PATH_URL_LOGIN = "public/login"
-
-
-@app.route('/mi-historia', methods=['GET'])
-def historia():
-        return render_template(f'public/library/historia.html')
-
-
-
-
 
 
 
@@ -287,30 +283,236 @@ def formReserva():
 
 
 
+#CARRITO
+
+@app.route('/agregar-al-carrito/<int:id_producto>', methods=['GET'])
+def agregar_al_carrito(id_producto):
+    if 'usuario_id' not in session:
+        return redirect(url_for('blog'))  # Si no hay usuario autenticado, redirigir al login
+
+
+    usuario_id = session['usuario_id']
+    producto = buscarProductoUnico(id_producto)
+
+    # Obtener o crear el carrito para el usuario
+    carrito = obtener_carrito_usuario(usuario_id)
+    if not carrito:
+
+        carrito_id = crear_carrito_usuario(usuario_id)
+    else:
+        carrito_id = carrito['id']
+
+    # Agregar el producto al carrito
+    agregar_producto_carrito(carrito_id, id_producto, producto['cantidad'])
+
+    return redirect(url_for('carrito'))
+
+
+@app.route('/carrito')
+def carrito():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    usuario_id = session['usuario_id']
+    productos_carrito = obtener_productos_carrito(usuario_id)
+    total_carrito = calcular_total_carrito(productos_carrito)
+
+    return render_template(f'{PATH_URL4}/carrito.html', carrito=productos_carrito, total_carrito=total_carrito)
+
+@app.route('/actualizar_cantidad/<int:id_producto>', methods=['POST'])
+def actualizar_cantidad(id_producto):
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    usuario_id = session['usuario_id']
+    cantidad = int(request.form.get('cantidad', 0))
+
+    actualizar_cantidad_producto(usuario_id, id_producto, cantidad)
+
+    return redirect(url_for('carrito'))
+
+@app.route('/eliminar_del_carrito/<int:id_producto>', methods=['GET'])
+def eliminar_del_carrito(id_producto):
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    usuario_id = session['usuario_id']
+
+    eliminar_producto_carrito(usuario_id, id_producto)
+
+    return redirect(url_for('carrito'))
+
+@app.route('/checkout', methods=['GET'])
+def checkout():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    usuario_id = session['usuario_id']
+
+    productos_carrito = obtener_productos_carrito(usuario_id)
+    total_carrito = calcular_total_carrito(productos_carrito)
+
+    if request.method == 'GET':
+        # Lógica para procesar el pago
+        # ...
+
+        # Insertar nueva factura
+        nueva_factura = {'usuario_id': usuario_id, 'total': total_carrito}
+        factura_id = insertar_factura(nueva_factura)
+
+        # Insertar productos de la factura
+        for producto in productos_carrito:
+            detalle_factura = {
+                'factura_id': factura_id,
+                'producto_id': producto['id_producto'],
+                'cantidad': producto['cantidad'],
+                'precio': producto['precio_producto']
+            }
+            insertar_detalle_factura(detalle_factura)
+
+        # Vaciar carrito
+        vaciar_carrito(usuario_id)
+
+        return redirect(url_for('factura_exito', factura_id=factura_id))
 
 
 
 
 
+    # Lógica para procesar el pago y generar la orden de compra
+
+    return render_template(f'{PATH_URL7}/checkout.html', carrito=productos_carrito, total_carrito=total_carrito)
 
 
 
 
+@app.route('/factura_exito/<int:factura_id>')
+def factura_exito(factura_id):
+    print("entro a factura_exito")
+    factura = obtener_factura(factura_id)
+    productos_factura = obtener_productos_factura(factura_id)
+    return render_template(f'{PATH_URL7}/factura_exito.html', factura=factura, productos_factura=productos_factura)
+
+
+@app.route('/factura_pdf/<int:factura_id>', methods=['GET'])
+def factura_pdf(factura_id):
+    factura = obtener_factura(factura_id)
+    productos_factura = obtener_productos_factura(factura_id)
+
+    # Renderizar la plantilla HTML de la factura
+    html = render_template(f'{PATH_URL7}/factura_exito.html', factura=factura, productos_factura=productos_factura)
+
+    # Crear un objeto BytesIO para almacenar el PDF
+    pdf = io.BytesIO()
+
+    # Generar el PDF a partir del HTML
+    pisa.CreatePDF(html, dest=pdf)
+    # Mover el cursor al inicio del buffer
+    pdf.seek(0)
+
+    # Configurar la respuesta para descargar el PDF
+    response = make_response(pdf.getvalue())
+    response.headers.set('Content-Type', 'application/pdf')
+    response.headers.set('Content-Disposition', 'attachment', filename=f'factura_{factura_id}.pdf')
+
+    return response
+
+
+
+@app.route('/reporte_ventas_pdf', methods=['GET'])
+def reporte_ventas_pdf():
+    fecha_inicio = request.args.get('fecha_inicio')
+    fecha_fin = request.args.get('fecha_fin')
+    print("fechainicooooo"+fecha_inicio)
+    facturas = sql_facturas_reporte(fecha_inicio, fecha_fin)
+
+    # Renderizar la plantilla HTML del reporte de ventas
+    html = render_template(f'{PATH_URL7}/reporte_ventas.html', facturas=facturas, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin)
+
+    # Crear un objeto BytesIO para almacenar el PDF
+    pdf = io.BytesIO()
+
+    # Generar el PDF a partir del HTML
+    pisa.CreatePDF(html, dest=pdf)
+    # Mover el cursor al inicio del buffer
+    pdf.seek(0)
+
+    # Configurar la respuesta para descargar el PDF
+    response = make_response(pdf)
+    response.headers.set('Content-Type', 'application/pdf')
+    response.headers.set('Content-Disposition', 'attachment', filename='reporte_ventas.pdf')
+
+    return response
+
+@app.route('/lista-de-facturas', methods=['GET'])
+def lista_facturas():
+    if 'conectado' in session:
+        return render_template(f'{PATH_URL7}/lista_facturas.html', facturas=sql_lista_facturasBD())
+    else:
+        flash('primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
+
+@app.route("/buscando-factura", methods=['POST'])
+def viewBuscarFacturaBD():
+
+    resultadoBusqueda = buscarFacturaBD(request.json['busqueda'])
+    if resultadoBusqueda:
+        return render_template(f'{PATH_URL7}/resultado_busqueda_factura.html', dataBusqueda=resultadoBusqueda)
+    else:
+        return jsonify({'fin': 0})
+
+@app.route('/borrar-factura/<string:id>', methods=['GET'])
+def borrarFactura(id):
+    resp = eliminarFactura(id)
+    if resp:
+        flash('la factura fue eliminada correctamente', 'success')
+        return redirect(url_for('lista_facturas'))
+
+
+
+@app.route('/lista-de-reportes', methods=['GET'])
+def viewReporteVentas():
+    if 'conectado' in session:
+        fecha_inicio = request.args.get('fecha_inicio')
+        fecha_fin = request.args.get('fecha_fin')
+        facturas = sql_facturas_reporte(fecha_inicio, fecha_fin)
+        return render_template(f'{PATH_URL7}/lista_reportes.html', facturas=facturas, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin)
+    else:
+        flash('primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
 
 
 
 
+#PAGO
+@app.route('/procesar_pago', methods=['POST'])
+def procesar_pago():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
 
+    nombre = request.form.get('nombre')
+    email = request.form.get('email')
+    tarjeta = request.form.get('tarjeta')
+    expiracion = request.form.get('expiracion')
+    cvv = request.form.get('cvv')
 
+    usuario_id = session['usuario_id']
+    productos_carrito = obtener_productos_carrito(usuario_id)
+    total_carrito = calcular_total_carrito(productos_carrito)
 
+    # Lógica para procesar el pago con un proveedor de pasarela de pago
+    pago_exitoso = procesar_pago_pasarela(nombre, email, tarjeta, expiracion, cvv, total_carrito)
 
+    if pago_exitoso:
+        # Lógica para generar la orden de compra en la base de datos
+        orden_id = generar_orden_compra(usuario_id, productos_carrito, total_carrito)
 
+        # Limpiar el carrito después de generar la orden de compra
+        vaciar_carrito(usuario_id)
 
-
-
-
-
-
-
-
-
+        # Redirigir a una página de confirmación de compra
+        return redirect(url_for('confirmacion_compra', orden_id=orden_id))
+    else:
+        # Mostrar un mensaje de error si el pago falla
+        flash('El pago no se pudo procesar. Por favor, inténtalo de nuevo.', 'error')
+        return redirect(url_for('checkout'))

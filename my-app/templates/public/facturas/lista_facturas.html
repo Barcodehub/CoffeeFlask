@@ -1,0 +1,90 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de Facturas{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">LISTA DE FACTURAS</h3>
+      <hr />
+    </div>
+
+    <div class="row justify-content-end">
+
+      {% if session['id_rol'] == 1 %}
+
+
+      <div class="">
+        <a
+                  href="{{ url_for('viewReporteVentas') }}"
+                  class="btn btn-success btn-sm"
+                  tooltip="Reporte Ventas">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Reporte de Ventas
+                </a>
+      </div>
+
+
+      <div class="col-md-6 mt-4 py-2">
+        <input
+          type="search"
+          id="search"
+          class="form-control border-0 shadow-none"
+          placeholder="Buscar factura por Usuario..."
+          onkeyup="buscadorTableFactura('facturas')" />
+      </div>
+    </div>
+
+    <div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+        <table
+          table-hover
+          id="facturas"
+          class="table table-striped table-bordered"
+          cellspacing="0"
+          width="100%">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for factura in facturas %}
+            <tr id="factura_{{ factura.id }}">
+              <td>{{ loop.index }}</td>
+              <td>{{ factura.usuario_nombre }}</td>
+              <td>{{ factura.fecha }}</td>
+              <td>{{ factura.total }}</td>
+              <td width="10px">
+                <a
+                  href="#"
+                  onclick="eliminarFactura('{{ factura.id }}');"
+                  class="btn btn-danger btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Eliminar factura {{ factura.usuario_nombre }}</span>">
+                  <i class="bi bi-trash3"></i>
+                  Eliminar
+                </a>
+                <a href="{{ url_for('factura_pdf', factura_id=factura.id) }}" class="btn btn-primary">Descargar Factura PDF</a>
+
+              </td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

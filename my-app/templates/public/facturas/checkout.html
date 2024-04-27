@@ -1,0 +1,83 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de productos{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+
+
+<h1>Checkout</h1>
+
+{% if carrito %}
+<h2>Resumen del Pedido</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Precio</th>
+      <th>Cantidad</th>
+      <th>Subtotal</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in carrito %}
+    <tr>
+      <td>{{ item.nombre_producto }}</td>
+      <td>${{ item.precio_producto }}</td>
+      <td>{{ item.cantidad }}</td>
+      <td>${{ (item.precio_producto * item.cantidad)|round(2) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3" class="text-right">Total:</td>
+      <td>${{ total_carrito|round(2) }}</td>
+    </tr>
+  </tfoot>
+</table>
+
+<h2>Información de Pago</h2>
+<form id="payment-form">
+  <div class="form-group">
+    <label for="nombre">Nombre</label>
+    <input type="text" class="form-control" id="nombre" required>
+  </div>
+  <div class="form-group">
+    <label for="email">Correo Electrónico</label>
+    <input type="email" class="form-control" id="email" required>
+  </div>
+  <div class="form-group">
+    <label for="tarjeta">Número de Tarjeta</label>
+    <input type="text" class="form-control" id="tarjeta" required>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="expiracion">Fecha de Expiración</label>
+      <input type="text" class="form-control" id="expiracion" placeholder="MM/YY" required>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="cvv">CVV</label>
+      <input type="text" class="form-control" id="cvv" required>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Realizar Pago</button>
+</form>
+{% else %}
+<p>Tu carrito está vacío.</p>
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
