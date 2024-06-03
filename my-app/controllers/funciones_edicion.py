@@ -1,3 +1,4 @@
+import json
 import random
 import datetime
 # Para subir archivo tipo foto al servidor
@@ -9,21 +10,15 @@ from conexion.conexionBD import connectionBD  # Conexión a BD
 import datetime
 import re
 import os
-
+from routers.router_login import *
+from controllers.funciones_logs import *
 from os import remove  # Modulo  para remover archivo
 from os import path  # Modulo para obtener la ruta o directorio
 
 
 import openpyxl  # Para generar el excel
 # biblioteca o modulo send_file para forzar la descarga
-from flask import send_file
-
-
-
-
-
-
-
+from flask import send_file, session
 
 
 #Listar de edicion namica - Nosotros
@@ -119,10 +114,13 @@ def procesar_actualizacion_formNosotro(data):
                 nosotros_parrafo = data.form['nosotros_parrafo']
                 id_edicion = data.form['id_edicion']
 
+                # Obtener los datos anteriores de la edición dinámica
+                cursor.execute("SELECT * FROM edicion_dinamica WHERE id_edicion = %s", (id_edicion,))
+                datos_anteriores = cursor.fetchone()
+
                 if data.files['nosotros_imagen']:
                     file = data.files['nosotros_imagen']
                     fotoForm = procesar_imagen_edit(file)
-
                     querySQL = """
                         UPDATE edicion_dinamica
                         SET 
@@ -141,9 +139,24 @@ def procesar_actualizacion_formNosotro(data):
                         WHERE id_edicion = %s
                     """
                     values = (nosotros_titulo, nosotros_parrafo, id_edicion)
-
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
+
+                # Registrar el cambio en log_cambios
+                datos_nuevos = {
+                    'id_edicion': id_edicion,
+                    'nosotros_titulo': nosotros_titulo,
+                    'nosotros_parrafo': nosotros_parrafo,
+                    'nosotros_imagen': fotoForm if data.files['nosotros_imagen'] else datos_anteriores['nosotros_imagen']
+                }
+                log_cambio = {
+                    'tabla': 'edicion_dinamica',
+                    'accion': 'actualización',
+                    'datos_anteriores': json.dumps(datos_anteriores),
+                    'datos_nuevos': json.dumps(datos_nuevos),
+                    'usuario_id': session['usuario_id']
+                }
+                insertar_log_cambio(log_cambio)
 
         return cursor.rowcount or []
     except Exception as e:

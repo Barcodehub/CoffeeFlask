@@ -24,7 +24,7 @@ def inicio():
 @app.route('/mi-perfil', methods=['GET'])
 def perfil():
     if session['id_rol'] == 3:
-        id_mesero = session['id'] #id o usuario_id
+        id_mesero = session['usuario_id'] #id o usuario_id
         mesas = obtener_nombre_mesa(id_mesero)
         return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session(), mesas=mesas)
     elif 'conectado' in session:

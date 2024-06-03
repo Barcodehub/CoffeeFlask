@@ -1,0 +1,49 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Logs{% endblock %}
+<!---->
+{% block customCSS %}
+
+{% if session['id_rol'] == 1 %}
+    <h1>Registro de Cambios</h1>
+<div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+    <table
+        table-hover
+          id="facturas"
+          class="table table-striped table-bordered"
+          cellspacing="0"
+          width="100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tabla</th>
+                <th>Acción</th>
+                <th>Datos Anteriores</th>
+                <th>Datos Nuevos</th>
+                <th>Usuario</th>
+                <th>Fecha y Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in log_cambios %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.tabla }}</td>
+                    <td>{{ log.accion }}</td>
+                    <td>{{ log.datos_anteriores }}</td>
+                    <td>{{ log.datos_nuevos }}</td>
+                    <td>{{ log.usuario_nombre }}</td>
+                    <td>{{ log.fecha_hora }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+ </div>
+  </div>
+
+{% endif %}
+
+{% endblock %}

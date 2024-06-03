@@ -35,6 +35,13 @@
 {% if session['id_rol'] == 1 %}
 
 
+                    <div class="contenido-banner2 menu-item {% if request.path == '/log_cambios' %} active {% endif %}">
+
+                         <a href="/log_cambios" class="menu-link">
+                            <div data-i18n="Tables">Cambios</div>
+                          </a>
+            </div>
+
                <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-usuarios' %} active {% endif %}">
 
                          <a href="/lista-de-usuarios" class="menu-link">

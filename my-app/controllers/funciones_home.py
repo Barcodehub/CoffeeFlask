@@ -1,5 +1,8 @@
+import json
 import random
 import datetime
+
+import mysql
 # Para subir archivo tipo foto al servidor
 from werkzeug.utils import secure_filename
 import uuid  # Modulo de python para crear un string
@@ -12,35 +15,49 @@ import os
 #import stripe
 from os import remove  # Modulo  para remover archivo
 from os import path  # Modulo para obtener la ruta o directorio
-
+from datetime import datetime
 
 import openpyxl  # Para generar el excel
 # biblioteca o modulo send_file para forzar la descarga
-from flask import send_file
-
+from flask import send_file, session
+from routers.router_login import *
+from controllers.funciones_logs import *
 
 
 #PRODUCTOS
 def procesar_form_producto(dataForm, foto_perfil):
-
-
     result_foto_perfil = procesar_imagen_perfil(foto_perfil)
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-
                 sql = "INSERT INTO tbl_productos (nombre_producto, precio_producto, categoria_producto, foto_producto) VALUES (%s, %s, %s, %s)"
-
-                # Creando una tupla con los valores del INSERT
-                valores = (dataForm['nombre_producto'], dataForm['precio_producto'], dataForm['categoria_producto'], result_foto_perfil)
+                valores = (dataForm['nombre_producto'], dataForm['precio_producto'], dataForm['categoria_producto'],
+                           result_foto_perfil)
                 cursor.execute(sql, valores)
-
+                producto_id = cursor.lastrowid
                 conexion_MySQLdb.commit()
-                resultado_insert = cursor.rowcount
-                return resultado_insert
 
+                # Registrar el cambio en log_cambios
+                datos_nuevos = {
+                    'id_producto': producto_id,
+                    'nombre_producto': dataForm['nombre_producto'],
+                    'precio_producto': dataForm['precio_producto'],
+                    'categoria_producto': dataForm['categoria_producto'],
+                    'foto_producto': result_foto_perfil
+                }
+                log_cambio = {
+                    'tabla': 'tbl_productos',
+                    'accion': 'inserción',
+                    'datos_anteriores': None,
+                    'datos_nuevos': json.dumps(datos_nuevos),
+                    'usuario_id': session['usuario_id']  # Asegúrate de pasar el ID del usuario que realiza el cambio
+                }
+                insertar_log_cambio(log_cambio)
+
+                return cursor.rowcount
     except Exception as e:
         return f'Se produjo un error en procesar_form_producto: {str(e)}'
+
 
 
 
@@ -111,8 +128,12 @@ def procesar_actualizacion_formProducto(data):
                 precio_producto = data.form['precio_producto']
                 categoria_producto = data.form['categoria_producto']
                 id_producto = data.form['id_producto']
+                usuario_id = session['usuario_id']  # Asegúrate de pasar el ID del usuario que realiza el cambio
 
-                print("hhhhhh")
+                # Obtener los datos anteriores del producto
+                cursor.execute("SELECT * FROM tbl_productos WHERE id_producto = %s", (id_producto,))
+                datos_anteriores = cursor.fetchone()
+
                 if data.files['foto_producto']:
                     file = data.files['foto_producto']
                     fotoForm = procesar_imagen_perfil(file)
@@ -141,6 +162,23 @@ def procesar_actualizacion_formProducto(data):
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
 
+                # Registrar el cambio en log_cambios
+                datos_nuevos = {
+                    'id_producto': id_producto,
+                    'nombre_producto': nombre_producto,
+                    'precio_producto': precio_producto,
+                    'categoria_producto': categoria_producto,
+                    'foto_producto': fotoForm if data.files['foto_producto'] else datos_anteriores['foto_producto']
+                }
+                log_cambio = {
+                    'tabla': 'tbl_productos',
+                    'accion': 'actualización',
+                    'datos_anteriores': json.dumps(datos_anteriores),
+                    'datos_nuevos': json.dumps(datos_nuevos),
+                    'usuario_id': session['usuario_id']
+                }
+                insertar_log_cambio(log_cambio)
+
         return cursor.rowcount or []
     except Exception as e:
         print(f"Ocurrió un error en procesar_actualizacion_formProducto: {e}")
@@ -153,19 +191,33 @@ def eliminarProducto(id_producto, foto_producto):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                # Obtener los datos anteriores del producto
+                cursor.execute("SELECT * FROM tbl_productos WHERE id_producto = %s", (id_producto,))
+                datos_anteriores = cursor.fetchone()
+
                 querySQL = "DELETE FROM tbl_productos WHERE id_producto=%s"
                 cursor.execute(querySQL, (id_producto,))
                 conexion_MySQLdb.commit()
                 resultado_eliminar = cursor.rowcount
 
                 if resultado_eliminar:
-                    # Eliminadon foto_producto desde el directorio
+                    # Eliminando foto_producto desde el directorio
                     basepath = path.dirname(__file__)
                     url_File = path.join(
                         basepath, '../static/fotos_productos', foto_producto)
 
                     if path.exists(url_File):
                         remove(url_File)  # Borrar foto desde la carpeta
+
+                    # Registrar el cambio en log_cambios
+                    log_cambio = {
+                        'tabla': 'tbl_productos',
+                        'accion': 'eliminación',
+                        'datos_anteriores': json.dumps(datos_anteriores),
+                        'datos_nuevos': None,
+                        'usuario_id': session['usuario_id']
+                    }
+                    insertar_log_cambio(log_cambio)
 
         return resultado_eliminar
     except Exception as e:
@@ -289,6 +341,8 @@ def buscarUsuarioUnico(id):
         return []
 
 
+
+
 def procesar_actualizacion_formUser(data):
     try:
         with connectionBD() as conexion_MySQLdb:
@@ -296,6 +350,10 @@ def procesar_actualizacion_formUser(data):
                 name_surname = data.form['name_surname']
                 id_rol = data.form['id_rol']
                 id = data.form['id']
+
+                # Obtener los datos anteriores del usuario
+                cursor.execute("SELECT * FROM users WHERE id = %s", (id,))
+                datos_anteriores = cursor.fetchone()
 
                 querySQL = """
                     UPDATE users
@@ -309,6 +367,28 @@ def procesar_actualizacion_formUser(data):
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
 
+                datos_anteriores_sin_password = {
+                    key: value for key, value in datos_anteriores.items() if key != 'pass_user'
+                }
+
+                # Convertir objetos datetime a cadena antes de serializar a JSON
+                datos_anteriores_json = {
+                    key: value.strftime('%Y-%m-%d %H:%M:%S') if isinstance(value, datetime) else value
+                    for key, value in datos_anteriores_sin_password.items()
+                }
+                datos_nuevos = {
+                    'name_surname': name_surname,
+                    'id_rol': id_rol
+                }
+                log_cambio = {
+                    'tabla': 'users',
+                    'accion': 'actualización',
+                    'datos_anteriores': json.dumps(datos_anteriores_json),
+                    'datos_nuevos': json.dumps(datos_nuevos),
+                    'usuario_id': session['usuario_id']
+                }
+                insertar_log_cambio(log_cambio)
+
         return cursor.rowcount or []
     except Exception as e:
         print(f"Ocurrió un error en procesar_actualizacion_formUser: {e}")
@@ -319,16 +399,36 @@ def procesar_actualizacion_formUser(data):
 # Eliminar usuario
 def eliminarUsuario(id):
     try:
+        print("Iniciando proceso de eliminación de usuario...")
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                # Obtener los datos anteriores del usuario
+                cursor.execute("SELECT * FROM users WHERE id = %s", (id,))
+                datos_anteriores = cursor.fetchone()
+
                 querySQL = "DELETE FROM users WHERE id=%s"
                 cursor.execute(querySQL, (id,))
                 conexion_MySQLdb.commit()
                 resultado_eliminar = cursor.rowcount
 
+                if resultado_eliminar:
+                    datos_anteriores_json = {
+                        key: value.strftime('%Y-%m-%d %H:%M:%S') if isinstance(value, datetime) else value
+                        for key, value in datos_anteriores.items()
+                    }
+                    # Registrar el cambio en log_cambios
+                    log_cambio = {
+                        'tabla': 'users',
+                        'accion': 'eliminación',
+                        'datos_anteriores': json.dumps(datos_anteriores_json),
+                        'datos_nuevos': None,
+                        'usuario_id': session['usuario_id']  # Asegúrate de pasar el ID del usuario que realiza el cambio
+                    }
+                    insertar_log_cambio(log_cambio)
+
         return resultado_eliminar
     except Exception as e:
-        print(f"Error en eliminarUsuario : {e}")
+        print(f"Error en eliminarUsuario: {e}")
         return []
 
 
@@ -379,23 +479,34 @@ def buscarUsuarioBD(search):
 
 
 def procesar_form_mesa(dataForm):
-
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-
                 sql = "INSERT INTO tbl_mesas (nombre_mesa, cantidad_mesa, id_mesero) VALUES (%s, %s, %s)"
-
-
-
                 valores = (dataForm['nombre_mesa'], dataForm['cantidad_mesa'],
                            dataForm['id_mesero'])
                 cursor.execute(sql, valores)
-
+                mesa_id = cursor.lastrowid
                 conexion_MySQLdb.commit()
                 resultado_insert = cursor.rowcount
-                return resultado_insert
 
+                # Registrar el cambio en log_cambios
+                datos_nuevos = {
+                    'id_mesa': mesa_id,
+                    'nombre_mesa': dataForm['nombre_mesa'],
+                    'cantidad_mesa': dataForm['cantidad_mesa'],
+                    'id_mesero': dataForm['id_mesero']
+                }
+                log_cambio = {
+                    'tabla': 'tbl_mesas',
+                    'accion': 'inserción',
+                    'datos_anteriores': None,
+                    'datos_nuevos': json.dumps(datos_nuevos),
+                    'usuario_id': session['usuario_id']
+                }
+                insertar_log_cambio(log_cambio)
+
+                return resultado_insert
     except Exception as e:
         return f'Se produjo un error en procesar_form_mesa: {str(e)}'
 
@@ -512,6 +623,18 @@ def procesar_actualizacion_formMesa(data):
                 id_mesero = data.form['id_mesero']
                 id_mesa = data.form['id_mesa']
 
+                # Obtener los datos anteriores de la mesa
+                cursor.execute("SELECT * FROM tbl_mesas WHERE id_mesa = %s", (id_mesa,))
+                datos_anteriores = cursor.fetchone()
+
+                # Obtener el nombre del mesero a partir del id_mesero
+                cursor.execute("SELECT name_surname FROM users WHERE id = %s", (id_mesero,))
+                mesero = cursor.fetchone()
+                nombre_mesero = mesero['name_surname'] if mesero else None
+
+                # Obtener el estado de disponibilidad de la mesa
+                disponibilidad = "Disponible" if disponible_mesa == "1" else "No disponible"
+
                 querySQL = """
                     UPDATE tbl_mesas
                     SET 
@@ -523,13 +646,29 @@ def procesar_actualizacion_formMesa(data):
                 """
                 values = (nombre_mesa, cantidad_mesa, disponible_mesa, id_mesero,
                           id_mesa)
-
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
 
+                # Registrar el cambio en log_cambios
+                datos_nuevos = {
+                    'id_mesa': id_mesa,
+                    'nombre_mesa': nombre_mesa,
+                    'cantidad_mesa': cantidad_mesa,
+                    'disponible_mesa': disponibilidad,
+                    'id_mesero': nombre_mesero
+                }
+                log_cambio = {
+                    'tabla': 'tbl_mesas',
+                    'accion': 'actualización',
+                    'datos_anteriores': json.dumps(datos_anteriores),
+                    'datos_nuevos': json.dumps(datos_nuevos),
+                    'usuario_id': session['usuario_id']
+                }
+                insertar_log_cambio(log_cambio)
+
         return cursor.rowcount or []
     except Exception as e:
-        print(f"Ocurrió un error en procesar_actualizacion_formlibMesa: {e}")
+        print(f"Ocurrió un error en procesar_actualizacion_formMesa: {e}")
         return None
 
 
@@ -538,12 +677,25 @@ def eliminarMesa(id_mesa):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                # Obtener los datos anteriores de la mesa
+                cursor.execute("SELECT * FROM tbl_mesas WHERE id_mesa = %s", (id_mesa,))
+                datos_anteriores = cursor.fetchone()
+
                 querySQL = "DELETE FROM tbl_mesas WHERE id_mesa=%s"
                 cursor.execute(querySQL, (id_mesa,))
                 conexion_MySQLdb.commit()
                 resultado_eliminar = cursor.rowcount
 
-
+                if resultado_eliminar:
+                    # Registrar el cambio en log_cambios
+                    log_cambio = {
+                        'tabla': 'tbl_mesas',
+                        'accion': 'eliminación',
+                        'datos_anteriores': json.dumps(datos_anteriores),
+                        'datos_nuevos': None,
+                        'usuario_id': session['usuario_id']
+                    }
+                    insertar_log_cambio(log_cambio)
 
         return resultado_eliminar
     except Exception as e:
@@ -895,19 +1047,44 @@ def buscarFacturaBD(search):
 
 def eliminarFactura(id):
     try:
+        print("Iniciando eliminación de factura...")
         with connectionBD() as conexion_MySQLdb:
+            print("Conexión a la base de datos establecida.")
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                print(f"Obteniendo datos anteriores de la factura con id {id}...")
+                cursor.execute("SELECT * FROM facturas WHERE id = %s", (id,))
+                datos_anteriores = cursor.fetchone()
+                print("Datos anteriores obtenidos:", datos_anteriores)
+
                 querySQL = "DELETE FROM facturas WHERE id=%s"
+                print("Ejecutando SQL para eliminación:", querySQL)
                 cursor.execute(querySQL, (id,))
                 conexion_MySQLdb.commit()
                 resultado_eliminar = cursor.rowcount
+                print("Resultado de eliminación:", resultado_eliminar)
 
-
+                if resultado_eliminar:
+                    print("Registrando log de cambio por eliminación...")
+                    # Convertir objetos datetime a cadena antes de serializar a JSON
+                    datos_anteriores_json = {
+                        key: value.strftime('%Y-%m-%d %H:%M:%S') if isinstance(value, datetime) else value
+                        for key, value in datos_anteriores.items()
+                    }
+                    log_cambio = {
+                        'tabla': 'facturas',
+                        'accion': 'eliminación',
+                        'datos_anteriores': json.dumps(datos_anteriores),
+                        'datos_nuevos': None,
+                        'usuario_id': session['usuario_id']  # Asegúrate de que 'session' esté disponible y tenga 'usuario_id'
+                    }
+                    print("Datos del log de cambio:", log_cambio)
+                    insertar_log_cambio(log_cambio)
 
         return resultado_eliminar
     except Exception as e:
-        print(f"Error en eliminarFactura : {e}")
+        print(f"Error en eliminarFactura: {e}")
         return []
+
 
 
 

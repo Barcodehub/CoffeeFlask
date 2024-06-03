@@ -17,9 +17,22 @@ PATH_URL4 = "public/productos"
 PATH_URL5 = "public/mesas"
 PATH_URL6 = "public/reservas"
 PATH_URL7 = "public/facturas"
+PATH_URL8 = "public/logs"
 PATH_URL_LOGIN = "public/login"
 
+#################################
+#CAMBIOS LOGS
 
+@app.route('/log_cambios')
+def mostrar_log_cambios():
+    log_cambios = obtener_log_cambios()
+    return render_template(f'{PATH_URL8}/log_cambios.html', log_cambios=log_cambios)
+
+
+
+
+
+##################################
 
 @app.route('/registrar-producto', methods=['GET'])
 def viewFormProducto():
