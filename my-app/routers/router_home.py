@@ -283,7 +283,7 @@ def viewFormReserva():
 
 @app.route('/form-registrar-reserva', methods=['POST'])
 def formReserva():
-            resultado = procesar_form_reserva(request.form, session['id'])
+            resultado = procesar_form_reserva(request.form, session['usuario_id'])
             if resultado:
                 return redirect(url_for('inicio')) #vista de factura, porque lista es para admin
             else:

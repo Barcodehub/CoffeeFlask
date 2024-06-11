@@ -9,7 +9,7 @@ def connectionBD():
     try:
         # connection = mysql.connector.connect(
         connection = mysql.connector.connect(
-             host=os.getenv("MYSQLHOST"),
+            host=os.getenv("MYSQLHOST"),
             user=os.getenv("MYSQLUSER"),
             passwd=os.getenv("MYSQLPASSWORD"),
             database=os.getenv("MYSQLDATABASE"),
