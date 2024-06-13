@@ -1,7 +1,14 @@
 
 from app import app
 from flask import render_template, request, flash, redirect, url_for, session
+import smtplib
+import secrets
+from datetime import datetime, timedelta
+import sys
+import io
 
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 # Importando mi conexión a BD
 from conexion.conexionBD import connectionBD
 
@@ -82,12 +89,7 @@ def cpanelRegisterUser():
 
 
 # Recuperar cuenta de usuario
-@app.route('/recovery-password', methods=['GET'])
-def cpanelRecoveryPassUser():
-    if 'conectado' in session:
-        return redirect(url_for('inicio'))
-    else:
-        return render_template(f'{PATH_URL_LOGIN}/auth_forgot_password.html')
+
 
 
 # Crear cuenta de usuario
@@ -104,10 +106,11 @@ def cpanelResgisterUserBD():
             flash('la cuenta fue creada correctamente.', 'success')
             return redirect(url_for('inicio'))
         else:
-            return redirect(url_for('inicio'))
+            flash('Datos mal escritos, revise el formato de email, la contraseña debe tener al menos 8 caracteres, su nombre no debe contener números.', 'error')
+            return render_template(f'{PATH_URL_LOGIN}/base_login.html')
     else:
         flash('el método HTTP es incorrecto', 'error')
-        return redirect(url_for('inicio'))
+        return render_template(f'{PATH_URL_LOGIN}/base_login.html')
 
 
 # Actualizar datos de mi perfil
@@ -128,6 +131,9 @@ def actualizarPerfil():
                 return redirect(url_for('perfil'))
             elif respuesta == 3:
                 flash('La Clave actual es obligatoria.', 'error')
+                return redirect(url_for('perfil'))
+            elif respuesta == 4:
+                flash('La Clave actual esta incorrecta.', 'error')
                 return redirect(url_for('perfil'))
         else:
             flash('primero debes iniciar sesión.', 'error')
@@ -199,7 +205,105 @@ def cerraSesion():
             session.pop('name_surname', None)
             session.pop('email', None)
             flash('tu sesión fue cerrada correctamente.', 'success')
-            return redirect(url_for('inicio'))
+            return render_template(f'{PATH_URL_LOGIN}/base_login.html')
         else:
             flash('recuerde debe iniciar sesión.', 'error')
             return render_template(f'{PATH_URL_LOGIN}/base_login.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@app.route('/recovery-password', methods=['GET', 'POST'])
+def cpanelRecoveryPassUser():
+    print("Iniciando cpanelRecoveryPassUser...")
+    if request.method == 'POST':
+        print("Método POST detectado.")
+        email_user = request.form.get('email_user')
+        print(f"Email de usuario recibido: {email_user}")
+
+        user = get_user_by_email(email_user)
+        print(f"Usuario obtenido: {user}")
+
+        if user:
+            print("Usuario encontrado, generando token...")
+            # Generar un token de restablecimiento de contraseña
+            token = secrets.token_urlsafe(32)
+            expiration_date = datetime.now() + timedelta(hours=24)  # Token válido por 24 horas
+            print(f"Token generado: {token}, Fecha de expiración: {expiration_date}")
+
+            # Guardar el token en la base de datos
+            save_reset_token(user['id'], token, expiration_date)
+            print("Token de restablecimiento guardado en la base de datos.")
+
+            # Enviar correo electrónico con el enlace de restablecimiento de contraseña
+            reset_link = url_for('reset_password', token=token, _external=True)
+            send_reset_email(user['email_user'], reset_link)
+            print(f"Enlace de restablecimiento enviado: {reset_link}")
+
+            flash('Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.', 'success')
+        else:
+            print("No se encontró una cuenta con ese correo electrónico.")
+            flash('No se encontró una cuenta con ese correo electrónico.', 'error')
+
+    return render_template(f'{PATH_URL_LOGIN}/auth_forgot_password.html')
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    print("Iniciando reset_password...")
+    print(f"Token recibido: {token}")
+
+    if request.method == 'GET':
+        print("Método GET detectado.")
+        # Verifica si el token es válido
+        valid_token = check_token_validity(token)
+        print(f"Token válido: {valid_token}")
+
+        if valid_token:
+            return render_template(f'{PATH_URL_LOGIN}/reset_password.html', token=token)
+        else:
+            flash('El token de restablecimiento de contraseña no es válido o ha expirado.', 'error')
+            return render_template(f'{PATH_URL_LOGIN}/base_login.html')
+
+    if request.method == 'POST':
+        print("Método POST detectado.")
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        print(f"Nueva contraseña: {new_password}")
+        print(f"Confirmar contraseña: {confirm_password}")
+
+        if new_password == confirm_password:
+            print("Las contraseñas coinciden.")
+            # Actualiza la contraseña del usuario en la base de datos
+            hashed_password = generate_password_hash(new_password)
+            print(f"Contraseña hasheada: {hashed_password}")
+
+            user_id = get_user_id_by_token(token)
+            print(f"ID de usuario obtenido por token: {user_id}")
+
+            update_user_password(user_id, hashed_password)
+            print("Contraseña del usuario actualizada en la base de datos.")
+
+            # Elimina el token de restablecimiento de contraseña de la base de datos
+            delete_reset_token(token)
+            print("Token de restablecimiento eliminado de la base de datos.")
+
+            flash('Tu contraseña ha sido actualizada correctamente.', 'success')
+            return render_template(f'{PATH_URL_LOGIN}/base_login.html')
+        else:
+            print("Las contraseñas no coinciden.")
+            flash('Las contraseñas no coinciden.', 'error')
+            return render_template(f'{PATH_URL_LOGIN}/reset_password.html', token=token)
+

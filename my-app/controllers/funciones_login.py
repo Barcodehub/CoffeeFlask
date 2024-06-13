@@ -5,7 +5,10 @@ from flask import session, flash
 from conexion.conexionBD import connectionBD
 # Para  validar contraseña
 from werkzeug.security import check_password_hash
-
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from flask import url_for
 import re
 # Para encriptar contraseña generate_password_hash
 from werkzeug.security import generate_password_hash
@@ -82,6 +85,10 @@ def validarDataRegisterLogin(name_surname, email_user, pass_user):
         print("Error: La contraseña debe tener al menos 8 caracteres.")
         return False
 
+    if any(char.isdigit() for char in name_surname):
+        print("Error: El campo de nombre y apellido no debe contener números.")
+        return False
+
     print("Todos los datos son válidos.")
     return True
 
@@ -142,15 +149,56 @@ def procesar_update_perfil(data_form):
                                                   nueva_password, id_user)
                                         cursor.execute(querySQL, params)
                                         conexion_MySQLdb.commit()
+
+                                        # Enviar correo electrónico de confirmación
+                                        subject = "Cambio de contraseña exitoso"
+                                        body = f"Hola {name_surname},\n\nTu contraseña ha sido actualizada correctamente."
+                                        send_reset_email2(email_user, subject, body)
+
                                 return cursor.rowcount or []
                             except Exception as e:
                                 print(
                                     f"Ocurrió en procesar_update_perfil: {e}")
                                 return []
+                else:
+                    return 4
             else:
                 return 0
 
+def send_reset_email2(email, subject, body):
+    sender_email = "brayanalexanderbc@ufps.edu.co"  # Cambia esto por tu dirección de correo electrónico
+    receiver_email = email
 
+    # Crea el mensaje
+    msg = MIMEText(body, 'plain', 'utf-8')
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+
+    # Configura los detalles del servidor SMTP
+    smtp_server = "smtp.gmail.com"  # Cambia esto si estás usando otro proveedor de correo
+    smtp_port = 587
+    smtp_username = "brayanalexanderbc@ufps.edu.co"  # Cambia esto por tu dirección de correo electrónico
+    smtp_password = "DIANAcardenas30"  # Cambia esto por tu contraseña de correo electrónico
+
+    # Envía el correo electrónico
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        print("Correo electrónico enviado correctamente.")
+    except Exception as e:
+        print(f"Error al enviar el correo electrónico: {e}")
+
+
+
+
+
+
+
+    # ... (resto del código para enviar el correo electrónico)
 def updatePefilSinPass(id_user, name_surname):
     try:
         with connectionBD() as conexion_MySQLdb:
@@ -196,3 +244,113 @@ def obtener_nombre_mesa(id_mesero):
     except Exception as e:
         print(f"Error en obtener_nombre_mesa : {e}")
         return []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Reestablecer contraseña
+def send_reset_email(email, reset_link):
+    # Configura los detalles del correo electrónico
+    print("entra")
+    sender_email = "brayanalexanderbc@ufps.edu.co"  # Cambia esto por tu dirección de correo electrónico
+    receiver_email = email
+    subject = "Restablecimiento de Contraseña"
+    body = f"Hola, has solicitado restablecer tu contraseña. Por favor, haz clic en el siguiente enlace para continuar: {reset_link}"
+
+    # Crea el mensaje
+    msg = MIMEText(body, 'plain', 'utf-8')
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+
+    # Configura los detalles del servidor SMTP
+    smtp_server = "smtp.gmail.com"  # Cambia esto si estás usando otro proveedor de correo
+    smtp_port = 587
+    smtp_username = "brayanalexanderbc@ufps.edu.co"  # Cambia esto por tu dirección de correo electrónico
+    smtp_password = "DIANAcardenas30"  # Cambia esto por tu contraseña de correo electrónico
+
+    # Envía el correo electrónico
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        print("Correo electrónico enviado correctamente.")
+    except Exception as e:
+        print(f"Error al enviar el correo electrónico: {e}")
+
+def get_user_by_email(email):
+    # Consulta a la base de datos para obtener el usuario por su correo electrónico
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE email_user = %s", [email])
+    user = cursor.fetchone()
+    conexion_MySQLdb.close()
+    return user
+
+def save_reset_token(user_id, token, expiration_date):
+    # Guarda el token de restablecimiento de contraseña en la base de datos
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor()
+    cursor.execute("INSERT INTO password_reset_tokens (user_id, token, expiration_date) VALUES (%s, %s, %s)", (user_id, token, expiration_date))
+    conexion_MySQLdb.commit()
+    conexion_MySQLdb.close()
+
+def check_token_validity(token):
+    # Verifica si el token es válido y no ha expirado
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM password_reset_tokens WHERE token = %s AND expiration_date > NOW()", [token])
+    valid_token = cursor.fetchone()
+    conexion_MySQLdb.close()
+    return valid_token
+
+def get_user_id_by_token(token):
+    # Obtiene el ID del usuario a partir del token
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor(dictionary=True)
+    cursor.execute("SELECT user_id FROM password_reset_tokens WHERE token = %s", [token])
+    result = cursor.fetchone()
+    conexion_MySQLdb.close()
+    return result['user_id'] if result else None
+
+def update_user_password(user_id, new_password):
+    # Actualiza la contraseña del usuario en la base de datos
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor()
+    cursor.execute("UPDATE users SET pass_user = %s WHERE id = %s", (new_password, user_id))
+    conexion_MySQLdb.commit()
+    conexion_MySQLdb.close()
+
+def delete_reset_token(token):
+    # Elimina el token de restablecimiento de contraseña de la base de datos
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor()
+    cursor.execute("DELETE FROM password_reset_tokens WHERE token = %s", [token])
+    conexion_MySQLdb.commit()
+    conexion_MySQLdb.close()
+
+
+
+
+

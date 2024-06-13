@@ -61,8 +61,11 @@ def formProducto():
 
 @app.route('/lista-de-productos', methods=['GET'])
 def lista_productos():
+    if 'conectado' in session:
         return render_template(f'{PATH_URL4}/lista_productos.html', productos=sql_lista_productosBD())
-   
+    else:
+        flash('recuerde debe iniciar sesión.', 'error')
+        return render_template(f'{PATH_URL_LOGIN}/base_login.html')
 
 
 
@@ -125,7 +128,7 @@ def usuarios():
         resp_usuariosBD = lista_usuariosBD()
         return render_template('public/usuarios/lista_usuarios.html', resp_usuariosBD=resp_usuariosBD)
     else:
-        return redirect(url_for('inicioCpanel'))
+        return redirect(url_for('inicio'))
 
 
 
