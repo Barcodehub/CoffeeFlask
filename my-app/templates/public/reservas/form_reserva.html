@@ -47,9 +47,12 @@
                 class="form-control"
                 type="text"
                 name="cantidad_reserva"
-                required />
+                value="{{ cantidad_mesa }}"
+                readonly />
             </div>
           </div>
+
+          <input type="hidden" name="id_mesa" value="{{ id_mesa }}">
 
           <div class="mb-3 mt-4 text-center">
             <button type="submit" class="btn rounded-pill btn-primary">

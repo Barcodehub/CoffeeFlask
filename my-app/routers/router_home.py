@@ -213,7 +213,7 @@ def formMesa():
 @app.route('/lista-de-mesas', methods=['GET'])
 def lista_mesas():
     if 'conectado' in session:
-        return render_template(f'{PATH_URL5}/lista_mesas.html', mesas=sql_lista_mesasBD())
+        return render_template(f'{PATH_URL6}/lista_mesas.html', mesas=sql_lista_mesasBD())
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
@@ -268,7 +268,13 @@ def borrarMesa(id_mesa):
 
 #RESERVAS
 
-
+@app.route('/lista-de-reservas', methods=['GET'])
+def lista_reservas():
+    if 'conectado' in session:
+        return render_template(f'{PATH_URL6}/lista_reservas.html', reservas=sql_lista_reservasBD())
+    else:
+        flash('primero debes iniciar sesión.', 'error')
+        return render_template(f'{PATH_URL_LOGIN}/base_login.html')
 
 
 
@@ -276,7 +282,9 @@ def borrarMesa(id_mesa):
 @app.route('/registrar-reserva', methods=['GET'])
 def viewFormReserva():
     if 'conectado' in session:
-        return render_template(f'{PATH_URL6}/form_reserva.html')
+        id_mesa = request.args.get('id_mesa')
+        cantidad_mesa = request.args.get('cantidad_mesa')
+        return render_template(f'{PATH_URL6}/form_reserva.html', id_mesa=id_mesa, cantidad_mesa=cantidad_mesa)
     else:
         flash('primero debes iniciar sesión.', 'error')
         return render_template(f'{PATH_URL_LOGIN}/base_login.html')

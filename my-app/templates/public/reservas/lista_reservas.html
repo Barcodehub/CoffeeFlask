@@ -1,0 +1,62 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de Mesa{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">RESERVACIONES</h3>
+      <hr />
+    </div>
+
+    <div class="row justify-content-end">
+
+      {% if session['id_rol'] == 5 %}
+      <div class="justify-content-center align-items-end text-end {% if request.path == '/registrar-reserva' %} active {% endif %}">
+                        <a href="/registrar-reserva" class=" btn btn-info btn-sm ">
+                            <div data-i18n="Tables">Registrar nueva reserva</div>
+                          </a>
+      </div>
+{% endif %}
+
+
+    </div>
+
+    <div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+        <table
+  table-hover
+  id="tbl_reservas"
+  class="table table-striped table-bordered"
+  cellspacing="0"
+  width="100%"
+>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Fecha de Reservacion</th>
+      <th>Cantidad de Personas</th>
+      <th>Usuario</th>
+      <th>Contacto</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for reserva in reservas %}
+    <tr id="reserva_{{ reserva.id_reserva }}">
+      <td>{{ loop.index }}</td>
+      <td>{{ reserva.fecha_reserva }}</td>
+      <td>{{ reserva.cantidad_reserva }}</td>
+      <td>{{ reserva.nombre_usuario }}</td>
+      <td>{{ reserva.emailuser }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

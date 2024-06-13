@@ -47,7 +47,19 @@
       <td>${{ total_carrito|round(2) }}</td>
       <td></td>
     </tr>
+<tr>
+      <td colspan="3" class="text-right">IVA (19%):</td>
+      <td>${{ '%0.2f' % (total_carrito * 0.19) }}</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3" class="text-right">Costo Total:</td>
+      <td>${{ '%0.2f' % (total_carrito + (total_carrito * 0.19)) }}</td>
+      <td></td>
+    </tr>
+
   </tfoot>
+
 </table>
 <a href="{{ url_for('checkout') }}" class="btn btn-primary">Proceder al Checkout</a>
 {% endif %}

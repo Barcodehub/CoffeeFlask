@@ -24,13 +24,18 @@
                         <div data-i18n="Tables">Blog</div>
                       </a>
                    </div> -->
-{% if not session['id_rol'] == 1 and not session['id_rol'] == 3 %}
-                    <div class="contenido-banner2 {% if request.path == '/registrar-reserva' %} active {% endif %}">
-                        <a href="/registrar-reserva" class="menu-link ">
-                            <div data-i18n="Tables">Hacer Reservacion</div>
+<div class="contenido-banner2 menu-item {% if request.path == '/lista-de-mesas' %} active {% endif %}">
+
+                         <a href="/lista-de-mesas" class="menu-link">
+                            <div data-i18n="Tables">Mesas</div>
                           </a>
-                    </div>
-{% endif %}
+            </div>
+                    <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-reservas' %} active {% endif %}">
+
+                         <a href="/lista-de-reservas" class="menu-link">
+                            <div data-i18n="Tables">Reservaciones</div>
+                          </a>
+            </div>
 
 {% if session['id_rol'] == 1 %}
 
@@ -48,12 +53,7 @@
                             <div data-i18n="Tables">Usuarios</div>
                           </a>
             </div>
-                    <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-mesas' %} active {% endif %}">
 
-                         <a href="/lista-de-mesas" class="menu-link">
-                            <div data-i18n="Tables">Mesas</div>
-                          </a>
-            </div>
 
              <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-reservas' %} active {% endif %}">
 

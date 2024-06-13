@@ -702,6 +702,39 @@ def eliminarMesa(id_mesa):
         return []
 
 
+
+
+
+
+def sql_lista_reservasBD():
+    try:
+        print("Iniciando conexión con la base de datos...")
+        with connectionBD() as conexion_MySQLdb:
+            print("Conexión establecida.")
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = ("""
+                    SELECT
+                        e.fecha_reserva,
+                        e.cantidad_reserva,
+                        u.name_surname AS nombre_usuario,
+                        u.email_user AS emailuser
+                    FROM tbl_reservas AS e
+                    JOIN users AS u ON e.id_usuario = u.id
+                    ORDER BY e.id_reserva DESC;
+
+                    """)
+                print(f"Ejecutando query: {querySQL}")
+                cursor.execute(querySQL)
+                reservasBD = cursor.fetchall()
+                print(f"Resultados obtenidos: {reservasBD}")
+        print("Cerrando conexión con la base de datos.")
+        return reservasBD
+    except Exception as e:
+        print(f"Error en la función sql_lista_reservasBD: {e}")
+        return None
+
+
+
 def procesar_form_reserva(dataForm, id_usuario):
     try:
         print("Iniciando proceso de reserva...")
@@ -711,39 +744,37 @@ def procesar_form_reserva(dataForm, id_usuario):
                 fecha_actual = datetime.now().date()
                 print(f"Fecha actual: {fecha_actual}")
 
-                # Consulta para obtener mesas disponibles
+                # Obtener el id_mesa del formulario
+                id_mesa = dataForm['id_mesa']
+
+                # Consulta para verificar si la mesa está disponible
                 sql = """
                 SELECT id_mesa FROM tbl_mesas
-                WHERE cantidad_mesa = %s
+                WHERE id_mesa = %s
                 AND (fecha_mesa != %s OR fecha_mesa IS NULL OR fecha_mesa < %s)
                 """
-                valores = (dataForm['cantidad_reserva'], dataForm['fecha_reserva'], fecha_actual)
-                print(f"Ejecutando consulta para obtener mesas disponibles: {sql}")
+                valores = (id_mesa, dataForm['fecha_reserva'], fecha_actual)
+                print(f"Ejecutando consulta para verificar disponibilidad de mesa: {sql}")
                 print(f"Valores: {valores}")
                 cursor.execute(sql, valores)
-                mesas_disponibles = cursor.fetchall()
-                print(f"Mesas disponibles: {mesas_disponibles}")
+                mesa_disponible = cursor.fetchone()
 
-                # Si no hay mesas disponibles, retorna un error
-                if not mesas_disponibles:
-                    print("No hay mesas disponibles que cumplan con las condiciones especificadas.")
-                    return 'No hay mesas disponibles que cumplan con las condiciones especificadas.'
-
-                # Selecciona una mesa de forma aleatoria
-                mesa_seleccionada = random.choice(mesas_disponibles)
-                print(f"Mesa seleccionada: {mesa_seleccionada}")
+                # Si la mesa no está disponible, retorna un error
+                if not mesa_disponible:
+                    print("La mesa seleccionada no está disponible.")
+                    return 'La mesa seleccionada no está disponible.'
 
                 # Inserta la reserva en la base de datos
                 sql = "INSERT INTO tbl_reservas (fecha_reserva, cantidad_reserva, id_mesa, id_usuario) VALUES (%s, %s, %s, %s)"
                 valores = (
-                dataForm['fecha_reserva'], dataForm['cantidad_reserva'], mesa_seleccionada['id_mesa'], id_usuario)
+                dataForm['fecha_reserva'], dataForm['cantidad_reserva'], id_mesa, id_usuario)
                 print(f"Ejecutando consulta para insertar reserva: {sql}")
                 print(f"Valores: {valores}")
                 cursor.execute(sql, valores)
 
                 # Actualiza la fecha_mesa de la mesa seleccionada
                 sql = "UPDATE tbl_mesas SET fecha_mesa = %s WHERE id_mesa = %s"
-                valores = (dataForm['fecha_reserva'], mesa_seleccionada['id_mesa'])
+                valores = (dataForm['fecha_reserva'], id_mesa)
                 print(f"Ejecutando consulta para actualizar fecha_mesa: {sql}")
                 print(f"Valores: {valores}")
                 cursor.execute(sql, valores)
