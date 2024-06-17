@@ -12,3 +12,4 @@ protobuf==4.21.12
 Werkzeug==2.3.6
 xhtml2pdf
 pdfkit
+flask-apscheduler
