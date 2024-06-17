@@ -9,6 +9,20 @@ from mysql.connector.errors import Error
 # Importando cenexión a BD
 from controllers.funciones_home import *
 from xhtml2pdf import pisa
+from datetime import date
+from datetime import datetime, timedelta
+from flask_apscheduler import APScheduler
+scheduler = APScheduler()
+def init_scheduler(app):
+    scheduler.init_app(app)
+    scheduler.start()
+
+    @scheduler.task('interval', id='liberar_mesas_task', hours=1, misfire_grace_time=900)
+    def liberar_mesas_task():
+        with app.app_context():
+            liberar_mesas()
+
+
 
 PATH_URL = "public/perfil"
 PATH_URL2 = "public/library"
@@ -213,7 +227,8 @@ def formMesa():
 @app.route('/lista-de-mesas', methods=['GET'])
 def lista_mesas():
     if 'conectado' in session:
-        return render_template(f'{PATH_URL6}/lista_mesas.html', mesas=sql_lista_mesasBD())
+        rol_usuario = session['id_rol']
+        return render_template(f'{PATH_URL5}/lista_mesas.html', mesas=sql_lista_mesasBD(rol_usuario))
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
@@ -221,7 +236,7 @@ def lista_mesas():
 
 @app.route("/buscando-mesa", methods=['POST'])
 def viewBuscarMesaBD():
-
+    print(buscarMesaBD)
     resultadoBusqueda = buscarMesaBD(request.json['busqueda'])
     if resultadoBusqueda:
         print(resultadoBusqueda)
@@ -231,11 +246,14 @@ def viewBuscarMesaBD():
 
 
 @app.route("/editar-mesa/<int:id>", methods=['GET'])
+@app.route("/editar-mesa/<int:id>", methods=['GET'])
 def viewEditarMesa(id):
     if 'conectado' in session:
         meseros = obtener_meseros()
         respuestaMesa = buscarMesaUnico(id)
         if respuestaMesa:
+            respuestaMesa['hora_inicio'] = obtener_hora_disponibilidad(respuestaMesa['id_mesa'], 'hora_inicio')
+            respuestaMesa['hora_fin'] = obtener_hora_disponibilidad(respuestaMesa['id_mesa'], 'hora_fin')
             return render_template(f'{PATH_URL5}/form_mesa_update.html', respuestaMesa=respuestaMesa, meseros=meseros)
         else:
             flash('La mesa no existe.', 'error')
@@ -244,13 +262,26 @@ def viewEditarMesa(id):
         flash('Primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
+def obtener_hora_disponibilidad(id_mesa, campo):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                query = f"SELECT {campo} FROM tbl_disponibilidad_mesas WHERE id_mesa = %s LIMIT 1"
+                cursor.execute(query, (id_mesa,))
+                resultado = cursor.fetchone()
+                return resultado[campo] if resultado else None
+    except Exception as e:
+        print(f"Error en obtener_hora_disponibilidad: {e}")
+        return None
 
-# Recibir formulario para actulizar informacion de mesa
 @app.route('/actualizar-mesa', methods=['POST'])
 def actualizarMesa():
-    resultData = procesar_actualizacion_formMesa(request)
+    resultData = procesar_actualizacion_formMesa(request.form)
     if resultData:
         return redirect(url_for('lista_mesas'))
+    else:
+        flash('Error al actualizar la mesa.', 'error')
+        return redirect(url_for('viewEditarMesa', id=request.form['id_mesa']))
 
 @app.route('/borrar-mesa/<string:id_mesa>', methods=['GET'])
 def borrarMesa(id_mesa):
@@ -260,9 +291,15 @@ def borrarMesa(id_mesa):
         return redirect(url_for('lista_mesas'))
 
 
-
-
-
+@app.route('/borrar-reserva/<string:id_reserva>', methods=['GET'])
+def borrarReserva(id_reserva):
+    resp = eliminarReserva(id_reserva)
+    if resp:
+        flash('La reservacion fue cancelada correctamente', 'success')
+    if session['id_rol'] == 1:
+        return redirect(url_for('lista_reservas'))
+    else:
+        return redirect(url_for('lista_reservas2'))
 
 
 
@@ -276,37 +313,138 @@ def lista_reservas():
         flash('primero debes iniciar sesión.', 'error')
         return render_template(f'{PATH_URL_LOGIN}/base_login.html')
 
-
-
-
-@app.route('/registrar-reserva', methods=['GET'])
-def viewFormReserva():
+@app.route('/lista-de-reservasUser', methods=['GET'])
+def lista_reservas2():
     if 'conectado' in session:
-        id_mesa = request.args.get('id_mesa')
-        cantidad_mesa = request.args.get('cantidad_mesa')
-        return render_template(f'{PATH_URL6}/form_reserva.html', id_mesa=id_mesa, cantidad_mesa=cantidad_mesa)
+        usuario_id = session.get('usuario_id')
+        return render_template(f'{PATH_URL6}/lista_reservasuser.html', reservas=sql_lista_reservasUSER(usuario_id))
     else:
         flash('primero debes iniciar sesión.', 'error')
         return render_template(f'{PATH_URL_LOGIN}/base_login.html')
+
+
+@app.route('/form-reserva', methods=['GET', 'POST'])
+def viewFormReserva():
+    if 'conectado' in session:
+        if request.method == 'POST':
+            resultado = procesar_form_reserva(request.form)
+            if resultado:
+                flash('La reserva fue registrada correctamente.', 'success')
+            else:
+                flash('Error: La mesa no está disponible para el horario seleccionado.', 'error')
+            return redirect(url_for('lista_mesas'))
+        else:
+            id_mesa = request.args.get('id_mesa')
+            cantidad_mesa = request.args.get('cantidad_mesa')
+            fecha_minima = date.today().isoformat()
+            fecha_actual = fecha_minima
+            return render_template(f'{PATH_URL6}/form_reserva.html', id_mesa=id_mesa, cantidad_mesa=cantidad_mesa, fecha_minima=fecha_minima, fecha_actual=fecha_actual)
+    else:
+        flash('Primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
+
+
+@app.route('/liberar-mesa/<int:id_mesa>')
+def liberar_mesa(id_mesa):
+    if session['id_rol'] == 1:  # Solo para administradores
+        try:
+            with connectionBD() as conexion_MySQLdb:
+                with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                    querySQL = "UPDATE tbl_disponibilidad_mesas SET disponible = 1 WHERE id_mesa = %s"
+                    cursor.execute(querySQL, (id_mesa,))
+                    conexion_MySQLdb.commit()
+            flash('Mesa liberada correctamente.', 'success')
+        except Exception as e:
+            print(f"Error en liberar_mesa: {e}")
+            flash('Error al liberar la mesa.', 'error')
+    else:
+        flash('No tienes permiso para realizar esta acción.', 'error')
+    return redirect(url_for('lista_mesas'))
+
 
 
 
 
 @app.route('/form-registrar-reserva', methods=['POST'])
 def formReserva():
-            resultado = procesar_form_reserva(request.form, session['usuario_id'])
+            resultado = procesar_form_reserva(request.form)
             if resultado:
-                return redirect(url_for('inicio')) #vista de factura, porque lista es para admin
+                flash('Reserva registrada correctamente.', 'success')
+                return redirect(url_for('lista_reservas2'))
             else:
                 flash('El mesa NO fue registrado.', 'error')
                 return render_template(f'{PATH_URL6}/form_reserva.html')
 
 
+@app.route('/form-registrar-reserva-admin', methods=['GET', 'POST'])
+def formReservaAdmin():
+    if request.method == 'POST':
+        resultado = procesar_form_reserva_admin(request.form)
+        if resultado:
+            flash('Reserva registrada correctamente.', 'success')
+            return redirect(url_for('lista_reservas'))
+        else:
+            flash('Error al registrar la reserva.', 'error')
+        return redirect(url_for('inicio'))
 
 
+    fecha_minima = date.today().isoformat()
+    fecha_actual = fecha_minima
+    usuarios = obtener_usuarios()
+    mesas = obtener_mesas()
+    return render_template(f'{PATH_URL6}/form_reserva_admin.html', usuarios=usuarios, mesas=mesas, fecha_minima=fecha_minima, fecha_actual=fecha_actual)
 
 
+@app.route('/horas-disponibles/<int:mesa_id>', methods=['GET'])
+def obtener_horas_disponibles(mesa_id):
+    fecha_reserva = request.args.get('fechaReserva')
+    fecha_reserva = datetime.strptime(fecha_reserva, '%a %b %d %Y %H:%M:%S GMT-0500 (hora estándar de Colombia)')
+    fecha_actual = datetime.now()
+    print('Fecha de reserva:', fecha_reserva)
+    print('Fecha actual:', fecha_actual)
 
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                # Consulta SQL para obtener las horas disponibles
+                if fecha_reserva.date() == date.today():
+                    querySQL = """
+                    SELECT id, hora_inicio, hora_fin 
+                    FROM tbl_disponibilidad_mesas 
+                    WHERE id_mesa = %s AND disponible = 1
+                    """
+                else:
+                    querySQL = """
+                    SELECT id, hora_inicio, hora_fin 
+                    FROM tbl_disponibilidad_mesas 
+                    WHERE id_mesa = %s
+                    """
+
+                cursor.execute(querySQL, (mesa_id,))
+                horas = cursor.fetchall()
+
+                # Convertir las horas a formato deseado (por ejemplo, HH:MM)
+                for hora in horas:
+                    hora['hora_inicio'] = str(hora['hora_inicio'])
+                    hora['hora_fin'] = str(hora['hora_fin'])
+
+    except Exception as e:
+        print(f"Error al obtener horas disponibles: {e}")
+        response = {
+            'error': str(e),
+            'message': 'Error al obtener las horas disponibles'
+        }
+        return make_response(jsonify(response), 500)
+
+    return jsonify(horas)
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    response = {
+        'error': str(error),
+        'message': 'Se produjo un error en el servidor'
+    }
+    return make_response(jsonify(response), 500)
 #CARRITO
 
 @app.route('/agregar-al-carrito/<int:id_producto>', methods=['GET'])

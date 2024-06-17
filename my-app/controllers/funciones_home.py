@@ -15,7 +15,7 @@ import os
 #import stripe
 from os import remove  # Modulo  para remover archivo
 from os import path  # Modulo para obtener la ruta o directorio
-from datetime import datetime
+from datetime import datetime, date
 
 import openpyxl  # Para generar el excel
 # biblioteca o modulo send_file para forzar la descarga
@@ -477,37 +477,29 @@ def buscarUsuarioBD(search):
 #MESAS
 
 
-def procesar_form_mesa(dataForm):
+def procesar_form_mesa(data):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                sql = "INSERT INTO tbl_mesas (nombre_mesa, cantidad_mesa, id_mesero) VALUES (%s, %s, %s)"
-                valores = (dataForm['nombre_mesa'], dataForm['cantidad_mesa'],
-                           dataForm['id_mesero'])
-                cursor.execute(sql, valores)
-                mesa_id = cursor.lastrowid
+                nombre_mesa = data['nombre_mesa']
+                cantidad_mesa = data['cantidad_mesa']
+                id_mesero = data['id_mesero']
+                hora_inicio = data['hora_inicio']
+                hora_fin = data['hora_fin']
+
+                querySQL = "INSERT INTO tbl_mesas (nombre_mesa, cantidad_mesa, id_mesero) VALUES (%s, %s, %s)"
+                cursor.execute(querySQL, (nombre_mesa, cantidad_mesa, id_mesero,))
                 conexion_MySQLdb.commit()
-                resultado_insert = cursor.rowcount
+                id_mesa = cursor.lastrowid
 
-                # Registrar el cambio en log_cambios
-                datos_nuevos = {
-                    'id_mesa': mesa_id,
-                    'nombre_mesa': dataForm['nombre_mesa'],
-                    'cantidad_mesa': dataForm['cantidad_mesa'],
-                    'id_mesero': dataForm['id_mesero']
-                }
-                log_cambio = {
-                    'tabla': 'tbl_mesas',
-                    'accion': 'inserción',
-                    'datos_anteriores': None,
-                    'datos_nuevos': json.dumps(datos_nuevos),
-                    'usuario_id': session['usuario_id']
-                }
-                insertar_log_cambio(log_cambio)
+                querySQL = "INSERT INTO tbl_disponibilidad_mesas (id_mesa, hora_inicio, hora_fin) VALUES (%s, %s, %s)"
+                cursor.execute(querySQL, (id_mesa, hora_inicio, hora_fin,))
+                conexion_MySQLdb.commit()
 
-                return resultado_insert
+                return cursor.rowcount
     except Exception as e:
-        return f'Se produjo un error en procesar_form_mesa: {str(e)}'
+        print(f"Error en procesar_form_mesa : {e}")
+        return None
 
 
 def obtener_meseros():
@@ -528,57 +520,109 @@ def obtener_meseros():
 
 
 # Lista de mesas
-def sql_lista_mesasBD():
+def sql_lista_mesasBD(rol_usuario):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                querySQL = (f"""
-                    SELECT 
-                        e.id_mesa,
-                        e.nombre_mesa, 
-                        e.cantidad_mesa,
-                        e.fecha_mesa,
-                        u.name_surname AS nombre_mesero,
-                        CASE
-                            WHEN e.disponible_mesa = 1 THEN 'Disponible'
-                            ELSE 'No disponible'
-                        END AS disponible_mesa
-                    FROM tbl_mesas AS e
-                    JOIN users AS u ON e.id_mesero = u.id
-                    WHERE u.id_rol = 3
-                    ORDER BY e.id_mesa DESC
+                if rol_usuario == 1:  # Administrador
+                    querySQL = ("""
+                        SELECT
+                            e.id_mesa,
+                            e.nombre_mesa,
+                            e.cantidad_mesa,
+                            e.fecha_mesa,
+                            u.name_surname AS nombre_mesero,
+                            CASE
+                                WHEN d.disponible = 1 THEN 'Disponible'
+                                ELSE 'No disponible'
+                            END AS disponible_mesa,
+                            CASE
+                                WHEN d.disponible = 1 THEN 1
+                                ELSE 0
+                            END AS tiene_disponibilidad,
+                            d.hora_inicio,
+                            d.hora_fin
+                        FROM tbl_mesas AS e
+                        JOIN users AS u ON e.id_mesero = u.id
+                        LEFT JOIN tbl_disponibilidad_mesas AS d ON e.id_mesa = d.id_mesa
+                        ORDER BY e.id_mesa DESC
                     """)
-                cursor.execute(querySQL,)
+                else:  # Usuario
+                    querySQL = ("""
+                        SELECT
+                            e.id_mesa,
+                            e.nombre_mesa,
+                            e.cantidad_mesa,
+                            e.fecha_mesa,
+                            u.name_surname AS nombre_mesero,
+                            CASE
+                                WHEN d.disponible = 1 THEN 'Disponible'
+                                ELSE 'No disponible'
+                            END AS disponible_mesa,
+                            CASE
+                                WHEN d.disponible = 1 THEN 1
+                                ELSE 0
+                            END AS tiene_disponibilidad,
+                            d.hora_inicio,
+                            d.hora_fin
+                        FROM tbl_mesas AS e
+                        JOIN users AS u ON e.id_mesero = u.id
+                        JOIN tbl_disponibilidad_mesas AS d ON e.id_mesa = d.id_mesa
+                        WHERE d.disponible = 1
+                        ORDER BY e.id_mesa DESC
+                    """)
+                cursor.execute(querySQL)
                 mesasBD = cursor.fetchall()
         return mesasBD
     except Exception as e:
-        print(
-            f"Error en la función sql_lista_mesasBD: {e}")
+        print(f"Error en la función sql_lista_mesasBD: {e}")
         return None
 
 
 
+def liberar_mesas():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = """
+                    UPDATE tbl_disponibilidad_mesas d
+                    JOIN tbl_reservas r ON d.id_mesa = r.id_mesa
+                    SET d.disponible = 1
+                    WHERE r.fecha_reserva < CURDATE() 
+                    OR (r.fecha_reserva = CURDATE() AND TIME(d.hora_fin) < CURTIME());
+                """
+                cursor.execute(querySQL)
+                conexion_MySQLdb.commit()
+                print(f"{cursor.rowcount} mesas liberadas.")
+    except Exception as e:
+        print(f"Error en liberar_mesas: {e}")
 
 def buscarMesaBD(search):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
                 querySQL = ("""
-                        SELECT 
+                    SELECT 
                         e.id_mesa,
-                        e.nombre_mesa, 
+                        e.nombre_mesa,
                         e.cantidad_mesa,
-                        e.fecha_mesa,
                         u.name_surname AS nombre_mesero,
                         CASE
-                            WHEN e.disponible_mesa = 1 THEN 'Disponible'
+                            WHEN d.disponible = 1 THEN 'Disponible'
                             ELSE 'No disponible'
-                        END AS disponible_mesa
-                        FROM tbl_mesas AS e
-                        JOIN users AS u ON e.id_mesero = u.id
-                        WHERE e.nombre_mesa LIKE %s 
-                        ORDER BY e.id_mesa DESC
-                    """)
+                        END AS disponible_mesa,
+                        CASE
+                            WHEN d.disponible = 1 THEN 1
+                            ELSE 0
+                        END AS tiene_disponibilidad,
+                        d.hora_inicio,
+                        d.hora_fin
+                    FROM tbl_mesas AS e
+                    JOIN users AS u ON e.id_mesero = u.id
+                    LEFT JOIN tbl_disponibilidad_mesas AS d ON e.id_mesa = d.id_mesa  -- Utilizamos LEFT JOIN para manejar mesas sin disponibilidad
+                    WHERE d.disponible = 1 AND e.nombre_mesa LIKE %s  -- Filtramos por disponibilidad y por el término de búsqueda
+                    ORDER BY e.id_mesa DESC
+                """)
                 search_pattern = f"%{search}%"  # Agregar "%" alrededor del término de búsqueda
                 mycursor.execute(querySQL, (search_pattern,))
                 resultado_busqueda = mycursor.fetchall()
@@ -589,83 +633,53 @@ def buscarMesaBD(search):
         return []
 
 
+
+
 def buscarMesaUnico(id):
     try:
         with connectionBD() as conexion_MySQLdb:
-            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
-                querySQL = ("""
-                        SELECT 
-                        e.id_mesa,
-                        e.nombre_mesa, 
-                        e.cantidad_mesa,
-                        e.disponible_mesa,
-                        e.id_mesero
-                        FROM tbl_mesas AS e
-                        WHERE e.id_mesa =%s LIMIT 1
-                    """)
-                mycursor.execute(querySQL, (id,))
-                mesa = mycursor.fetchone()
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = """
+                    SELECT e.id_mesa, e.nombre_mesa, e.cantidad_mesa, e.id_mesero
+                    FROM tbl_mesas AS e
+                    WHERE e.id_mesa = %s LIMIT 1
+                """
+                cursor.execute(querySQL, (id,))
+                mesa = cursor.fetchone()
                 return mesa
-
     except Exception as e:
         print(f"Ocurrió un error en def buscarMesaUnico: {e}")
-        return []
+        return None
+
 
 
 def procesar_actualizacion_formMesa(data):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                nombre_mesa = data.form['nombre_mesa']
-                cantidad_mesa = data.form['cantidad_mesa']
-                disponible_mesa = data.form['disponible_mesa']
-                id_mesero = data.form['id_mesero']
-                id_mesa = data.form['id_mesa']
-
-                # Obtener los datos anteriores de la mesa
-                cursor.execute("SELECT * FROM tbl_mesas WHERE id_mesa = %s", (id_mesa,))
-                datos_anteriores = cursor.fetchone()
-
-                # Obtener el nombre del mesero a partir del id_mesero
-                cursor.execute("SELECT name_surname FROM users WHERE id = %s", (id_mesero,))
-                mesero = cursor.fetchone()
-                nombre_mesero = mesero['name_surname'] if mesero else None
-
-                # Obtener el estado de disponibilidad de la mesa
-                disponibilidad = "Disponible" if disponible_mesa == "1" else "No disponible"
+                nombre_mesa = data['nombre_mesa']
+                cantidad_mesa = data['cantidad_mesa']
+                id_mesero = data['id_mesero']
+                id_mesa = data['id_mesa']
+                hora_inicio = data['hora_inicio']
+                hora_fin = data['hora_fin']
 
                 querySQL = """
                     UPDATE tbl_mesas
-                    SET 
-                        nombre_mesa = %s,
-                        cantidad_mesa = %s,
-                        disponible_mesa = %s,
-                        id_mesero = %s
+                    SET nombre_mesa = %s, cantidad_mesa = %s, id_mesero = %s
                     WHERE id_mesa = %s
                 """
-                values = (nombre_mesa, cantidad_mesa, disponible_mesa, id_mesero,
-                          id_mesa)
-                cursor.execute(querySQL, values)
+                cursor.execute(querySQL, (nombre_mesa, cantidad_mesa, id_mesero, id_mesa))
+
+                querySQL = """
+                    UPDATE tbl_disponibilidad_mesas
+                    SET hora_inicio = %s, hora_fin = %s
+                    WHERE id_mesa = %s
+                """
+                cursor.execute(querySQL, (hora_inicio, hora_fin, id_mesa))
+
                 conexion_MySQLdb.commit()
-
-                # Registrar el cambio en log_cambios
-                datos_nuevos = {
-                    'id_mesa': id_mesa,
-                    'nombre_mesa': nombre_mesa,
-                    'cantidad_mesa': cantidad_mesa,
-                    'disponible_mesa': disponibilidad,
-                    'id_mesero': nombre_mesero
-                }
-                log_cambio = {
-                    'tabla': 'tbl_mesas',
-                    'accion': 'actualización',
-                    'datos_anteriores': json.dumps(datos_anteriores),
-                    'datos_nuevos': json.dumps(datos_nuevos),
-                    'usuario_id': session['usuario_id']
-                }
-                insertar_log_cambio(log_cambio)
-
-        return cursor.rowcount or []
+                return cursor.rowcount
     except Exception as e:
         print(f"Ocurrió un error en procesar_actualizacion_formMesa: {e}")
         return None
@@ -702,9 +716,67 @@ def eliminarMesa(id_mesa):
         return []
 
 
+def eliminarReserva(id_reserva):
+    try:
+        print("Conectando a la base de datos...")
+        with connectionBD() as conexion_MySQLdb:
+            print("Conexión establecida.")
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                print(f"Obteniendo datos de la reserva con id_reserva: {id_reserva}")
+                cursor.execute("SELECT * FROM tbl_reservas WHERE id_reserva = %s", (id_reserva,))
+                datos_anteriores = cursor.fetchone()
+                print(f"Datos anteriores: {datos_anteriores}")
+
+                if not datos_anteriores:
+                    print("No se encontró la reserva. Saliendo...")
+                    return 0
+
+                # Obtener id_mesa antes de eliminar la reserva
+                id_mesa = datos_anteriores['id_mesa']
+
+                # Convertir fechas a cadenas antes de serializar
+                for key, value in datos_anteriores.items():
+                    if isinstance(value, (datetime, date)):
+                        datos_anteriores[key] = value.isoformat()
+
+                querySQL = "DELETE FROM tbl_reservas WHERE id_reserva=%s"
+                print(f"Ejecutando query: {querySQL}")
+                cursor.execute(querySQL, (id_reserva,))
+                conexion_MySQLdb.commit()
+                resultado_eliminar = cursor.rowcount
+                print(f"Filas eliminadas: {resultado_eliminar}")
+
+                if resultado_eliminar:
+                    # Registrar el cambio en log_cambios
+                    log_cambio = {
+                        'tabla': 'tbl_reservas',
+                        'accion': 'eliminación',
+                        'datos_anteriores': json.dumps(datos_anteriores),
+                        'datos_nuevos': None,
+                        'usuario_id': session['usuario_id']
+                    }
+                    print(f"Insertando log de cambio: {log_cambio}")
+                    insertar_log_cambio(log_cambio)
+
+                    print("Liberando mesas...")
+                    liberar_mesa(id_mesa)
+
+        print("Operación completada.")
+        return resultado_eliminar
+    except Exception as e:
+        print(f"Error en eliminarReserva: {e}")
+        return 0
 
 
-
+def liberar_mesa(id_mesa):
+        try:
+            with connectionBD() as conexion_MySQLdb:
+                with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                    querySQL = "UPDATE tbl_disponibilidad_mesas SET disponible = 1 WHERE id_mesa = %s"
+                    cursor.execute(querySQL, (id_mesa,))
+                    conexion_MySQLdb.commit()
+        except Exception as e:
+            print(f"Error en liberar_mesa: {e}")
 
 def sql_lista_reservasBD():
     try:
@@ -714,6 +786,7 @@ def sql_lista_reservasBD():
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = ("""
                     SELECT
+                        e.id_reserva,
                         e.fecha_reserva,
                         e.cantidad_reserva,
                         u.name_surname AS nombre_usuario,
@@ -735,60 +808,128 @@ def sql_lista_reservasBD():
 
 
 
-def procesar_form_reserva(dataForm, id_usuario):
+def sql_lista_reservasUSER(id_usuario):
     try:
-        print("Iniciando proceso de reserva...")
+        print("Iniciando conexión con la base de datos...")
+        with connectionBD() as conexion_MySQLdb:
+            print("Conexión establecida.")
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = ("""
+                    SELECT
+                        e.id_reserva,  -- Incluir id_reserva en la selección
+                        e.fecha_reserva,
+                        e.cantidad_reserva,
+                        u.name_surname AS nombre_usuario,
+                        u.email_user AS emailuser
+                    FROM tbl_reservas AS e
+                    JOIN users AS u ON e.id_usuario = u.id
+                    WHERE e.id_usuario = %s
+                    ORDER BY e.id_reserva DESC;
+                    """)
+                print(f"Ejecutando query: {querySQL}")
+                cursor.execute(querySQL, (id_usuario,))
+                reservasBD = cursor.fetchall()
+                print(f"Resultados obtenidos: {reservasBD}")
+        print("Cerrando conexión con la base de datos.")
+        return reservasBD
+    except Exception as e:
+        print(f"Error en la función sql_lista_reservasUSER: {e}")
+        return None
+
+
+
+def procesar_form_reserva(data):
+    try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                # Obtén la fecha actual
-                fecha_actual = datetime.now().date()
-                print(f"Fecha actual: {fecha_actual}")
+                fecha_reserva = data['fecha_reserva']
+                cantidad_reserva = data['cantidad_reserva']
+                id_usuario = session['usuario_id']
+                id_mesa = data['id_mesa']
+                id_disponibilidad = data['hora_reserva']
 
-                # Obtener el id_mesa del formulario
-                id_mesa = dataForm['id_mesa']
+                # Verificar si la mesa y el horario están disponibles
+                querySQL = "SELECT disponible FROM tbl_disponibilidad_mesas WHERE id = %s"
+                cursor.execute(querySQL, (id_disponibilidad,))
+                disponibilidad = cursor.fetchone()
 
-                # Consulta para verificar si la mesa está disponible
-                sql = """
-                SELECT id_mesa FROM tbl_mesas
-                WHERE id_mesa = %s
-                AND (fecha_mesa != %s OR fecha_mesa IS NULL OR fecha_mesa < %s)
-                """
-                valores = (id_mesa, dataForm['fecha_reserva'], fecha_actual)
-                print(f"Ejecutando consulta para verificar disponibilidad de mesa: {sql}")
-                print(f"Valores: {valores}")
-                cursor.execute(sql, valores)
-                mesa_disponible = cursor.fetchone()
+                if disponibilidad and disponibilidad['disponible']:
+                    # Insertar la reserva
+                    querySQL = "INSERT INTO tbl_reservas (fecha_reserva, cantidad_reserva, id_usuario, id_mesa) VALUES (%s, %s, %s, %s)"
+                    cursor.execute(querySQL, (fecha_reserva, cantidad_reserva, id_usuario, id_mesa))
 
-                # Si la mesa no está disponible, retorna un error
-                if not mesa_disponible:
-                    print("La mesa seleccionada no está disponible.")
-                    return 'La mesa seleccionada no está disponible.'
+                    # Actualizar la disponibilidad
+                    querySQL = "UPDATE tbl_disponibilidad_mesas SET disponible = 0 WHERE id = %s"
+                    cursor.execute(querySQL, (id_disponibilidad,))
 
-                # Inserta la reserva en la base de datos
-                sql = "INSERT INTO tbl_reservas (fecha_reserva, cantidad_reserva, id_mesa, id_usuario) VALUES (%s, %s, %s, %s)"
-                valores = (
-                dataForm['fecha_reserva'], dataForm['cantidad_reserva'], id_mesa, id_usuario)
-                print(f"Ejecutando consulta para insertar reserva: {sql}")
-                print(f"Valores: {valores}")
-                cursor.execute(sql, valores)
-
-                # Actualiza la fecha_mesa de la mesa seleccionada
-                sql = "UPDATE tbl_mesas SET fecha_mesa = %s WHERE id_mesa = %s"
-                valores = (dataForm['fecha_reserva'], id_mesa)
-                print(f"Ejecutando consulta para actualizar fecha_mesa: {sql}")
-                print(f"Valores: {valores}")
-                cursor.execute(sql, valores)
-
-                conexion_MySQLdb.commit()
-                resultado_insert = cursor.rowcount
-                print(f"Resultado de la inserción: {resultado_insert}")
-                return resultado_insert
-
+                    conexion_MySQLdb.commit()
+                    return cursor.rowcount
+                else:
+                    return 0
     except Exception as e:
-        print(f"Se produjo un error en procesar_form_reserva: {str(e)}")
-        return f'Se produjo un error en procesar_form_reserva: {str(e)}'
+        print(f"Error en procesar_form_reserva : {e}")
+        return None
 
+def procesar_form_reserva_admin(data):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                fecha_reserva = data['fecha_reserva']
+                id_usuario = data['usuario']
+                id_mesa = data['mesa']
+                id_disponibilidad = data['hora']
 
+                # Verificar si la mesa y el horario están disponibles
+                querySQL = "SELECT disponible FROM tbl_disponibilidad_mesas WHERE id = %s"
+                cursor.execute(querySQL, (id_disponibilidad,))
+                disponibilidad = cursor.fetchone()
+
+                if disponibilidad and disponibilidad['disponible']:
+                    # Obtener la cantidad de la mesa
+                    querySQL = "SELECT cantidad_mesa FROM tbl_mesas WHERE id_mesa = %s"
+                    cursor.execute(querySQL, (id_mesa,))
+                    resultado = cursor.fetchone()
+                    cantidad_reserva = resultado['cantidad_mesa']
+
+                    # Insertar la reserva
+                    querySQL = "INSERT INTO tbl_reservas (fecha_reserva, cantidad_reserva, id_usuario, id_mesa) VALUES (%s, %s, %s, %s)"
+                    cursor.execute(querySQL, (fecha_reserva, cantidad_reserva, id_usuario, id_mesa))
+
+                    # Actualizar la disponibilidad
+                    querySQL = "UPDATE tbl_disponibilidad_mesas SET disponible = 0 WHERE id = %s"
+                    cursor.execute(querySQL, (id_disponibilidad,))
+
+                    conexion_MySQLdb.commit()
+                    return cursor.rowcount
+                else:
+                    return 0
+    except Exception as e:
+        print(f"Error en procesar_form_reserva_admin: {e}")
+        return None
+
+def obtener_usuarios():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "SELECT id, name_surname FROM users WHERE id_rol = 2"
+                cursor.execute(querySQL)
+                usuarios = cursor.fetchall()
+                return usuarios
+    except Exception as e:
+        print(f"Error al obtener usuarios: {e}")
+        return []
+
+def obtener_mesas():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "SELECT id_mesa, nombre_mesa, cantidad_mesa FROM tbl_mesas"
+                cursor.execute(querySQL)
+                mesas = cursor.fetchall()
+                return mesas
+    except Exception as e:
+        print(f"Error al obtener mesas: {e}")
+        return []
 #carrito
 def obtener_carrito_usuario(usuario_id):
     try:
@@ -1134,3 +1275,16 @@ def sql_facturas_reporte(fecha_inicio=None, fecha_fin=None):
     except Exception as e:
         print(f"Error en la función sql_facturas_reporte: {e}")
         return None
+
+
+
+
+
+
+
+
+
+
+
+
+

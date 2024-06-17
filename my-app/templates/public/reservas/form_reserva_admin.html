@@ -1,0 +1,111 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Registrar Reserva{% endblock %}
+<!---->
+{% block customCSS %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename ='assets/css/file.css') }}" />
+{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">HACER UNA RESERVACION EN LA CAFETERIA</h3>
+      <hr />
+    </div>
+  </div>
+{% if session['id_rol'] == 1 %}
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+     <form method="POST" action="{{ url_for('formReservaAdmin') }}">
+    <label for="fecha_reserva">Fecha de la reserva:</label>
+<input type="date" id="fecha_reserva" name="fecha_reserva" min="{{ fecha_minima }}" value="{{ fecha_actual }}" required>
+
+    <label for="usuario">Usuario:</label>
+    <select id="usuario" name="usuario" required>
+        <option value="">Seleccione un usuario</option>
+        {% for usuario in usuarios %}
+        <option value="{{ usuario.id }}">{{ usuario.name_surname }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="mesa">Mesa:</label>
+    <select id="mesa" name="mesa" required>
+        <option value="">Seleccione una mesa</option>
+        {% for mesa in mesas %}
+        <option value="{{ mesa.id_mesa }}">{{ mesa.nombre_mesa }} ({{ mesa.cantidad_mesa }} personas)</option>
+        {% endfor %}
+    </select>
+
+    <label for="hora">Hora disponible:</label>
+    <select id="hora" name="hora" required>
+        <option value="">Seleccione una hora</option>
+    </select>
+
+    <button type="submit">Registrar Reserva</button>
+</form>
+
+<script>
+    const selectMesa = document.getElementById('mesa');
+    const selectHora = document.getElementById('hora');
+
+    selectMesa.addEventListener('change', function() {
+        const mesaId = this.value;
+        const fechaReserva = new Date(document.getElementById('fecha_reserva').value);
+        fechaReserva.setDate(fechaReserva.getDate() + 1); // Sumamos un día a la fecha de reserva
+
+        const fechaActual = new Date();
+
+        console.log('Fecha de reserva:', fechaReserva);
+        console.log('Fecha actual:', fechaActual);
+
+        fetch(`/horas-disponibles/${mesaId}?fechaReserva=${encodeURIComponent(fechaReserva)}`)
+        .then(response => response.json())
+        .then(horas => {
+            console.log('Horas disponibles antes del filtro:', horas);
+
+            selectHora.innerHTML = '<option value="">Seleccione una hora</option>';
+
+            if (fechaReserva.toDateString() === fechaActual.toDateString()) {
+                const horaActual = new Date(); // Hora actual en el mismo día
+                const horasActuales = horaActual.getHours();
+                const minutosActuales = horaActual.getMinutes();
+                const segundosActuales = horaActual.getSeconds();
+
+                horas = horas.filter(hora => {
+                    const [horaFinHoras, horaFinMinutos, horaFinSegundos] = hora.hora_fin.split(':').map(Number);
+                    const horaFin = new Date(fechaActual);
+                    horaFin.setHours(horaFinHoras, horaFinMinutos, horaFinSegundos, 0);
+
+                    console.log('Hora fin:', horaFin);
+                    return horaFin > horaActual;
+                });
+            } else {
+                // Si la fecha de reserva es diferente a la fecha actual, no se filtra ninguna hora
+            }
+
+            console.log('Horas disponibles después del filtro:', horas);
+
+            horas.forEach(hora => {
+                const option = document.createElement('option');
+                option.value = hora.id;
+                option.textContent = `${hora.hora_inicio} - ${hora.hora_fin}`;
+                selectHora.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+});
+</script>
+
+
+        </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %} {% block customJS %}
+<script src="{{ url_for('static', filename ='assets/customJS/file.js') }}"></script>
+{% endblock %}

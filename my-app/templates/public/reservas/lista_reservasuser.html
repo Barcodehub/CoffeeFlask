@@ -1,0 +1,65 @@
+{% extends 'public/base_hereda.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de Reserva{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">RESERVACIONES</h3>
+      <hr />
+    </div>
+
+
+    <div class="row justify-content-center mb-2">
+  <div class="table-responsive text-nowrap table-hover">
+    <h4>Mis Reservas</h4>
+    <table
+      table-hover
+      id="tbl_reservas"
+      class="table table-striped table-bordered"
+      cellspacing="0"
+      width="100%"
+    >
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>id</th>
+          <th>Fecha de Reservación</th>
+          <th>Cantidad de Personas</th>
+    <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reserva in reservas %}
+        <tr id="reserva_{{ reserva.id_reserva }}">
+          <td>{{ loop.index }}</td>
+          <td>{{ reserva.id_reserva }}</td>
+          <td>{{ reserva.fecha_reserva }}</td>
+          <td>{{ reserva.cantidad_reserva }}</td>
+
+          <td width="10px">
+                <a
+                  href="#"
+                  onclick="eliminarReserva('{{ reserva.id_reserva }}');"
+                  class="btn btn-danger btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Eliminar reserva {{ reserva.nombre_reserva }}</span>">
+                  <i class="bi bi-trash3"></i>
+                  Cancelar Reserva
+                </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+  </div>
+</div>
+
+{% endblock %}

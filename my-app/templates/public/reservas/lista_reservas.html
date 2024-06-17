@@ -13,9 +13,9 @@
 
     <div class="row justify-content-end">
 
-      {% if session['id_rol'] == 5 %}
-      <div class="justify-content-center align-items-end text-end {% if request.path == '/registrar-reserva' %} active {% endif %}">
-                        <a href="/registrar-reserva" class=" btn btn-info btn-sm ">
+      {% if session['id_rol'] == 1 %}
+      <div class="justify-content-center align-items-end text-end {% if request.path == '/form-registrar-reserva-admin' %} active {% endif %}">
+                        <a href="/form-registrar-reserva-admin" class=" btn btn-info btn-sm ">
                             <div data-i18n="Tables">Registrar nueva reserva</div>
                           </a>
       </div>
@@ -40,6 +40,7 @@
       <th>Cantidad de Personas</th>
       <th>Usuario</th>
       <th>Contacto</th>
+      <th>Accion</th>
     </tr>
   </thead>
   <tbody>
@@ -49,7 +50,21 @@
       <td>{{ reserva.fecha_reserva }}</td>
       <td>{{ reserva.cantidad_reserva }}</td>
       <td>{{ reserva.nombre_usuario }}</td>
-      <td>{{ reserva.emailuser }}</td>
+      <td><a href="mailto:{{ reserva.emailuser }}">{{ reserva.emailuser }}</a></td>
+      <td width="10px">
+                <a
+                  href="#"
+                  onclick="eliminarReserva('{{ reserva.id_reserva }}');"
+                  class="btn btn-danger btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Eliminar reserva {{ reserva.nombre_reserva }}</span>">
+                  <i class="bi bi-trash3"></i>
+                  Cancelar Reserva
+                </a>
+          </td>
     </tr>
     {% endfor %}
   </tbody>

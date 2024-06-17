@@ -52,6 +52,18 @@ function eliminarMesa(id_mesa) {
   }
 }
 
+//reservaciones
+function eliminarReserva(id_reserva) {
+  if (confirm("¿Estas seguro que deseas Eliminar la reservacion?")) {
+    let url = `/borrar-reserva/${id_reserva}`;
+    console.log(`Redirigiendo a URL: ${url}`);
+    if (url) {
+      window.location.href = url;
+    }
+  }
+}
+
+
 //factura
 function eliminarFactura(id) {
   if (confirm("¿Estas seguro que deseas Eliminar la factura?")) {

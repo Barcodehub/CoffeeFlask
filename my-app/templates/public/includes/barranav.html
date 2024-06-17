@@ -30,15 +30,15 @@
                             <div data-i18n="Tables">Mesas</div>
                           </a>
             </div>
-                    <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-reservas' %} active {% endif %}">
+
+
+{% if session['id_rol'] == 1 %}
+<div class="contenido-banner2 menu-item {% if request.path == '/lista-de-reservas' %} active {% endif %}">
 
                          <a href="/lista-de-reservas" class="menu-link">
                             <div data-i18n="Tables">Reservaciones</div>
                           </a>
             </div>
-
-{% if session['id_rol'] == 1 %}
-
 
                     <div class="contenido-banner2 menu-item {% if request.path == '/log_cambios' %} active {% endif %}">
 
@@ -65,6 +65,14 @@
 {% endif %}
 
 {% if session['id_rol'] == 2 %}
+
+                    <div class="contenido-banner2 menu-item {% if request.path == '/lista-de-reservasUser' %} active {% endif %}">
+
+                         <a href="/lista-de-reservasUser" class="menu-link">
+                            <div data-i18n="Tables">Reservaciones</div>
+                          </a>
+            </div>
+
                <div class="contenido-banner2 menu-item {% if request.path == '/mi-contacto' %} active {% endif %}">
                        <a href="/mi-contacto" class="menu-link">
                         <div data-i18n="Tables">Contacto</div>

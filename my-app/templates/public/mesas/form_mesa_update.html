@@ -25,94 +25,48 @@
     </div>
   </div>
 {% if session['id_rol'] == 1 %}
-  <div class="row justify-content-center mb-2">
-    <div class="col-md-10">
-      <form
-        class="form-horizontal mx-auto"
-        method="POST"
-        action="{{ url_for('actualizarMesa', id = respuestaMesa.id_mesa ) }}"
-        autocomplete="off"
-        enctype="multipart/form-data">
-        <input
-          type="text"
-          class="form-control"
-          name="id_mesa"
-          value="{{ respuestaMesa.id_mesa }}"
-          required
-          hidden />
-
-        <div class="card-body">
-          <div class="row">
+  <form class="form-horizontal mx-auto" method="POST" action="/actualizar-mesa" autocomplete="off" enctype="multipart/form-data">
+    <div class="card-body">
+        <input type="hidden" name="id_mesa" value="{{ respuestaMesa.id_mesa }}"/>
+        <div class="row">
             <div class="col-md-6">
-              <label for="nombre_mesa" class="form-label">
-                Nombre de la mesa
-              </label>
-              <input
-                type="text"
-                name="nombre_mesa"
-                value="{{ respuestaMesa.nombre_mesa }}"
-                class="form-control"
-                required />
+                <label for="nombre_mesa" class="form-label">Nombre de la mesa</label>
+                <input type="text" name="nombre_mesa" class="form-control" value="{{ respuestaMesa.nombre_mesa }}" required/>
             </div>
             <div class="col-md-6">
-              <label for="cantidad_mesa" class="form-label">
-                Mesa para cuantas personas?:
-              </label>
-              <input
-                class="form-control"
-                type="text"
-                name="cantidad_mesa"
-                value="{{ respuestaMesa.cantidad_mesa }}"
-                required />
+                <label for="cantidad_mesa" class="form-label">Cantidad de personas</label>
+                <input type="text" name="cantidad_mesa" class="form-control" value="{{ respuestaMesa.cantidad_mesa }}" required/>
             </div>
-          </div>
-
-          <div class="row mt-2">
-
-            <div class="col-md-6">
-            <label for="disponible_mesa" class="form-label">
-                Disponibilidad de la mesa
-            </label>
-            {% with disponibilidad = {"1": "Disponible", "0": "No disponible"} %}
-            <select class="form-select" name="disponible_mesa">
-                {% for clave, valor in disponibilidad.items() %}
-            {% if clave == respuestaMesa.disponible_mesa|string %}
-                <option value="{{ clave }}" selected>{{ valor }}</option>
-            {% else %}
-                <option value="{{ clave }}">{{ valor }}</option>
-              {% endif %}
-                {% endfor %}
-            </select>
-            {% endwith %}
-</div>
-
-
-            <div class="col-md-6">
-    <label for="id_mesero" class="form-label">
-        Mesero a cargo
-    </label>
-    <select name="id_mesero" class="form-control" required>
-        {% for mesero in meseros %}
-        <option value="{{ mesero.id }}" {% if mesero.id == respuestaMesa.id_mesero %}selected{% endif %}>{{ mesero.name_surname }}</option>
-        {% endfor %}
-    </select>
-</div>
-
-
-
-          </div>
-
-
-          <div class="mb-3 mt-4 text-center">
-            <button type="submit" class="btn rounded-pill btn-primary">
-              Guardar registro ahora
-              <i class="bi bi-arrow-clockwise"></i>
-            </button>
-          </div>
         </div>
-      </form>
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <label for="id_mesero" class="form-label">Mesero a cargo</label>
+                <select name="id_mesero" class="form-control" required>
+                    {% for mesero in meseros %}
+                        <option value="{{ mesero.id }}" {% if respuestaMesa.id_mesero == mesero.id %}selected{% endif %}>{{ mesero.name_surname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <label for="hora_inicio" class="form-label">Hora de inicio</label>
+                <input type="time" name="hora_inicio" class="form-control" value="{{ respuestaMesa.hora_inicio }}" required/>
+            </div>
+            <div class="col-md-6">
+                <label for="hora_fin" class="form-label">Hora de fin</label>
+                <input type="time" name="hora_fin" class="form-control" value="{{ respuestaMesa.hora_fin }}" required/>
+            </div>
+        </div>
+        <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+                Actualizar registro ahora
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
     </div>
-  </div>
+</form>
+
   {% else %}
   <div class="row justify-content-center mb-2">
     <div class="col-md-12">

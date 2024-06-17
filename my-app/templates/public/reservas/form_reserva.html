@@ -34,8 +34,7 @@
                 Fecha de la reservacion:
               </label>
               <input
-                type="date"
-                name="fecha_reserva"
+                type="date" id="fecha_reserva" name="fecha_reserva" min="{{ fecha_minima }}" value="{{ fecha_actual }}"
                 class="form-control"
                 required />
             </div>
@@ -52,8 +51,35 @@
             </div>
           </div>
 
-          <input type="hidden" name="id_mesa" value="{{ id_mesa }}">
+          <input type="hidden" id="id_mesa" name="id_mesa" value="{{ id_mesa }}">
 
+
+<div class="col-md-6">
+  <label for="hora_reserva" class="form-label">Hora de Reserva</label>
+  <select name="hora_reserva" id="hora_reserva" class="form-control" required>
+    <option value="">Seleccione una hora</option>
+  </select>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    var idMesa = document.getElementById('id_mesa').value;
+    fetch('/horas-disponibles/' + idMesa)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);  // Para depuración
+            var selectHora = document.getElementById('hora_reserva');
+            selectHora.innerHTML = '<option value="">Seleccione una hora</option>';
+            data.forEach(function(hora) {
+                var option = document.createElement('option');
+                option.value = hora.id;
+                option.textContent = hora.hora_inicio + ' - ' + hora.hora_fin;
+                selectHora.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+});
+</script>
           <div class="mb-3 mt-4 text-center">
             <button type="submit" class="btn rounded-pill btn-primary">
               Guardar registro ahora
