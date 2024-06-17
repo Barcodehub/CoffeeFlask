@@ -9,15 +9,11 @@ def connectionBD():
     try:
         # connection = mysql.connector.connect(
         connection = mysql.connector.connect(
-           #host=os.getenv("MYSQLHOST"),
-            #user=os.getenv("MYSQLUSER"),
-            #passwd=os.getenv("MYSQLPASSWORD"),
-            #database=os.getenv("MYSQLDATABASE"),
-            #port=os.getenv("MYSQLPORT"),
-            host="localhost",
-            user="root",
-            passwd="",
-            database="crud_coffee",
+           host=os.getenv("MYSQLHOST"),
+            user=os.getenv("MYSQLUSER"),
+            passwd=os.getenv("MYSQLPASSWORD"),
+            database=os.getenv("MYSQLDATABASE"),
+            port=os.getenv("MYSQLPORT"),
             charset='utf8mb4',
             collation='utf8mb4_unicode_ci',
             raise_on_warnings=True
