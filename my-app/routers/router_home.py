@@ -629,6 +629,9 @@ def borrarFactura(id):
     if resp:
         flash('la factura fue eliminada correctamente', 'success')
         return redirect(url_for('lista_facturas'))
+    else:
+        flash('Hubo un error al eliminar la factura', 'danger')
+        return redirect(url_for('lista_facturas'))
 
 
 
