@@ -438,6 +438,28 @@ def obtener_horas_disponibles(mesa_id):
 
     return jsonify(horas)
 
+@app.route('/horas-disponibles2/<int:mesa_id>', methods=['GET'])
+def obtener_horas_disponibles2(mesa_id):
+    horas = []
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "SELECT id, hora_inicio, hora_fin FROM tbl_disponibilidad_mesas WHERE id_mesa = %s"
+                cursor.execute(querySQL, (mesa_id,))
+                horas = cursor.fetchall()
+
+                # Convertir timedelta a string antes de serializar a JSON
+                for hora in horas:
+                    if isinstance(hora['hora_inicio'], timedelta):
+                        hora['hora_inicio'] = str(hora['hora_inicio'])
+                    if isinstance(hora['hora_fin'], timedelta):
+                        hora['hora_fin'] = str(hora['hora_fin'])
+
+    except Exception as e:
+        print(f"Error al obtener horas disponibles: {e}")
+
+    return jsonify(horas)
+
 @app.errorhandler(500)
 def internal_server_error(error):
     response = {
