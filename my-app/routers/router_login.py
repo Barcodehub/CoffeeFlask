@@ -156,15 +156,6 @@ def loginCliente():
 
             # Comprobando si existe una cuenta
             conexion_MySQLdb = connectionBD()
-            if conexion_MySQLdb is None:
-                # Handle the case where connection failed, log an error, or raise an exception
-                print("Failed to establish database connection.")
-                # Optionally raise an exception or return an error response
-            else:
-                # Proceed with executing SQL queries
-                cursor = conexion_MySQLdb.cursor(dictionary=True)
-                cursor.execute("SELECT * FROM users WHERE email_user = %s", [email_user])
-                account = cursor.fetchone()
             cursor = conexion_MySQLdb.cursor(dictionary=True)
             cursor.execute(
                 "SELECT * FROM users WHERE email_user = %s", [email_user])
