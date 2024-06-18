@@ -1235,7 +1235,7 @@ def eliminarFactura(id):
                     log_cambio = {
                         'tabla': 'facturas',
                         'accion': 'eliminación',
-                        'datos_anteriores': json.dumps(datos_anteriores),
+                        'datos_anteriores': json.dumps(datos_anteriores_json),
                         'datos_nuevos': None,
                         'usuario_id': session['usuario_id']  # Asegúrate de que 'session' esté disponible y tenga 'usuario_id'
                     }
