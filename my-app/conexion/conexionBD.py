@@ -20,7 +20,7 @@ def connectionBD():
 
         )
         if connection.is_connected():
-            # print("Conexión exitosa a la BD")
+            print("Conexión exitosa a la BD")
             return connection
 
     except mysql.connector.Error as error:
