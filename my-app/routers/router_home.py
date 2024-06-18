@@ -558,26 +558,32 @@ def factura_exito(factura_id):
 
 @app.route('/factura_pdf/<int:factura_id>', methods=['GET'])
 def factura_pdf(factura_id):
-    factura = obtener_factura(factura_id)
-    productos_factura = obtener_productos_factura(factura_id)
+    if factura_id is None:
+        flash('Debes seleccionar la fecha y darle al  boton buscar', 'danger')
+        return redirect(url_for('viewReporteVentas'))
+    else:
 
-    # Renderizar la plantilla HTML de la factura
-    html = render_template(f'{PATH_URL7}/factura_exito.html', factura=factura, productos_factura=productos_factura)
+        factura = obtener_factura(factura_id)
+        productos_factura = obtener_productos_factura(factura_id)
 
-    # Crear un objeto BytesIO para almacenar el PDF
-    pdf = io.BytesIO()
+        # Renderizar la plantilla HTML de la factura
+        html = render_template(f'{PATH_URL7}/factura_exito.html', factura=factura, productos_factura=productos_factura)
 
-    # Generar el PDF a partir del HTML
-    pisa.CreatePDF(html, dest=pdf)
-    # Mover el cursor al inicio del buffer
-    pdf.seek(0)
+        # Crear un objeto BytesIO para almacenar el PDF
+        pdf = io.BytesIO()
 
-    # Configurar la respuesta para descargar el PDF
-    response = make_response(pdf.getvalue())
-    response.headers.set('Content-Type', 'application/pdf')
-    response.headers.set('Content-Disposition', 'attachment', filename=f'factura_{factura_id}.pdf')
+        # Generar el PDF a partir del HTML
+        pisa.CreatePDF(html, dest=pdf)
+        # Mover el cursor al inicio del buffer
+        pdf.seek(0)
 
-    return response
+        # Configurar la respuesta para descargar el PDF
+        response = make_response(pdf.getvalue())
+        response.headers.set('Content-Type', 'application/pdf')
+        response.headers.set('Content-Disposition', 'attachment', filename=f'factura_{factura_id}.pdf')
+
+        return response
+
 
 
 
@@ -585,26 +591,32 @@ def factura_pdf(factura_id):
 def reporte_ventas_pdf():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
-    print("fechainicooooo"+fecha_inicio)
-    facturas = sql_facturas_reporte(fecha_inicio, fecha_fin)
 
-    # Renderizar la plantilla HTML del reporte de ventas
-    html = render_template(f'{PATH_URL7}/reporte_ventas.html', facturas=facturas, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin)
+    if fecha_inicio is None:
+        flash('Debes seleccionar la fecha y darle al  boton buscar', 'danger')
+        return redirect(url_for('viewReporteVentas'))
 
-    # Crear un objeto BytesIO para almacenar el PDF
-    pdf = io.BytesIO()
+    else:
+        print("fechainicooooo"+fecha_inicio)
+        facturas = sql_facturas_reporte(fecha_inicio, fecha_fin)
 
-    # Generar el PDF a partir del HTML
-    pisa.CreatePDF(html, dest=pdf)
-    # Mover el cursor al inicio del buffer
-    pdf.seek(0)
+        # Renderizar la plantilla HTML del reporte de ventas
+        html = render_template(f'{PATH_URL7}/reporte_ventas.html', facturas=facturas, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin)
 
-    # Configurar la respuesta para descargar el PDF
-    response = make_response(pdf)
-    response.headers.set('Content-Type', 'application/pdf')
-    response.headers.set('Content-Disposition', 'attachment', filename='reporte_ventas.pdf')
+        # Crear un objeto BytesIO para almacenar el PDF
+        pdf = io.BytesIO()
 
-    return response
+        # Generar el PDF a partir del HTML
+        pisa.CreatePDF(html, dest=pdf)
+        # Mover el cursor al inicio del buffer
+        pdf.seek(0)
+
+        # Configurar la respuesta para descargar el PDF
+        response = make_response(pdf)
+        response.headers.set('Content-Type', 'application/pdf')
+        response.headers.set('Content-Disposition', 'attachment', filename='reporte_ventas.pdf')
+
+        return response
 
 @app.route('/lista-de-facturas', methods=['GET'])
 def lista_facturas():
