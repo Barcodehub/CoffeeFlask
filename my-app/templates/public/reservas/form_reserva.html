@@ -64,7 +64,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
     var idMesa = document.getElementById('id_mesa').value;
-    fetch('/horas-disponibles/' + idMesa)
+    fetch('/horas-disponibles2/' + idMesa)
         .then(response => response.json())
         .then(data => {
             console.log(data);  // Para depuración
