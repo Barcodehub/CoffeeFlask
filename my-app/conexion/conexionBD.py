@@ -13,7 +13,7 @@ def connectionBD():
             user=os.getenv("MYSQLUSER"),
             passwd=os.getenv("MYSQLPASSWORD"),
             database=os.getenv("MYSQLDATABASE"),
-            port=os.getenv("MYSQLPORT"),
+            port=int(os.getenv("MYSQLPORT", "12437")),
             charset='utf8mb4',
             collation='utf8mb4_unicode_ci',
             raise_on_warnings=True
