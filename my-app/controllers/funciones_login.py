@@ -285,8 +285,8 @@ def send_reset_email(email, reset_link):
     # Configura los detalles del servidor SMTP
     smtp_server = "smtp.gmail.com"  # Cambia esto si estás usando otro proveedor de correo
     smtp_port = 587
-    smtp_username = "brayanalexanderbc@ufps.edu.co"  # Cambia esto por tu dirección de correo electrónico
-    smtp_password = "DIANAcardenas30"  # Cambia esto por tu contraseña de correo electrónico
+    smtp_username = "mmmmm@gmail.co"  # Cambia esto por tu dirección de correo electrónico
+    smtp_password = "123456"  # Cambia esto por tu contraseña de correo electrónico
 
     # Envía el correo electrónico
     try:
