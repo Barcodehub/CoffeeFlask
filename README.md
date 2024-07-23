@@ -12,4 +12,4 @@ Interfaz editable dinamicamente por el Administrador
 
 ## Documentación
 
-La documentación completa del proyecto está disponible en [este PDF](./docs/Documentacion.docx.pdf).
+La documentación completa del proyecto está disponible en [este PDF](./my-app/static/Documentacion.docx.pdf).
