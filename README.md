@@ -13,3 +13,9 @@ SystemCoffee es una aplicación web para la gestión de una cafetería. El siste
 ## Documentación
 
 La documentación completa del proyecto está disponible en [este PDF](./my-app/static/Documentacion.docx.pdf).
+
+## Demostración
+
+Para ver una demostración de la aplicación en funcionamiento, puedes ver este video:
+
+[![SystemCoffee](https://img.youtube.com/vi/OsYlgKAi5ZA/0.jpg)](https://www.youtube.com/watch?v=OsYlgKAi5ZA)
