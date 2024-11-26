@@ -3,12 +3,14 @@ import os
 
 def connectionBD():
     try:
-        host = "roundhouse.proxy.rlwy.net"
-        user = "root"
-        password = "PfZTYRCskvvFoLJFfFSSKsqKXQmAPxqu"
-        database = "railway"
-        port = 12437
+        # Obtener las variables de entorno
+        host = os.getenv("DB_HOST")
+        user = os.getenv("DB_USER")
+        password = os.getenv("DB_PASSWORD")
+        database = os.getenv("DB_NAME")
+        port = int(os.getenv("DB_PORT"))
 
+        # Establecer la conexión
         connection = mysql.connector.connect(
             host=host,
             user=user,
